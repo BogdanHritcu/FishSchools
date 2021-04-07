@@ -4,8 +4,6 @@
 #include <vector>
 #include <GL/freeglut.h>
 
-class BoidSystem;
-
 class Boid
 {
 public:

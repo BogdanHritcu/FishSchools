@@ -27,6 +27,9 @@ public:
 	static void initModels();
 
 private:
+	void resetValue();
+
+private:
 	float* m_ValuePtr;
 
 	float m_Min;

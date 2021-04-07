@@ -18,9 +18,16 @@ float old_time;
 float current_time;
 float delta_time;
 
-float val;
-BoidSystem boidSystem(300, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-Slider slider;
+float cohesion;
+float separation;
+float alignment;
+float count;
+
+BoidSystem boidSystem(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+Slider cohSlider;
+Slider sepSlider;
+Slider aliSlider;
+Slider countSlider;
 
 void init()
 {
@@ -42,26 +49,53 @@ void init()
 
 	boidSystem.setBoidSize(Vec2f(15.0f, 5.0f));
 
-	boidSystem.setBoidCohesion(0.4f);
-	boidSystem.setBoidSeparation(0.3f);
-	boidSystem.setBoidAlignment(0.3f);
+	boidSystem.setBoidCohesion(0.5f);
+	boidSystem.setBoidSeparation(0.5f);
+	boidSystem.setBoidAlignment(0.5f);
 	
 	boidSystem.setBoidViewDistance(60.0f);
-	boidSystem.setBoidMinSeparationDistance(40.0f);
+	boidSystem.setBoidMinSeparationDistance(15.0f);
 	boidSystem.setBoidMaxSpeed(100.0f);
 	boidSystem.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
 
 	boidSystem.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
 	
-	
 	////////////////////////////////////////////////////
-	slider.setPosition(Vec2f(20.0f, 20.0f));
-	slider.setSize(Vec2f(400.0f, 10.0f));
-	slider.setButtonDiameterPercent(1.5f);
-	slider.setPercent(0.5f);
-	slider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	slider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	cohSlider.setPosition(Vec2f(10.0f, 10.0f));
+	cohSlider.setSize(Vec2f(400.0f, 10.0f));
+	cohSlider.setButtonDiameterPercent(1.5f);
+	cohSlider.setPercent(0.5f);
+	cohSlider.setRange(0.0f, 1.0f);
+	cohSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+	cohSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	cohSlider.setValueRef(&cohesion);
 
+	sepSlider.setPosition(Vec2f(10.0f, 30.0f));
+	sepSlider.setSize(Vec2f(400.0f, 10.0f));
+	sepSlider.setButtonDiameterPercent(1.5f);
+	sepSlider.setPercent(0.5f);
+	sepSlider.setRange(0.0f, 1.0f);
+	sepSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+	sepSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	sepSlider.setValueRef(&separation);
+
+	aliSlider.setPosition(Vec2f(10.0f, 50.0f));
+	aliSlider.setSize(Vec2f(400.0f, 10.0f));
+	aliSlider.setButtonDiameterPercent(1.5f);
+	aliSlider.setPercent(0.5f);
+	aliSlider.setRange(0.0f, 1.0f);
+	aliSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+	aliSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	aliSlider.setValueRef(&alignment);
+
+	countSlider.setPosition(Vec2f(10.0f, 70.0f));
+	countSlider.setSize(Vec2f(400.0f, 10.0f));
+	countSlider.setButtonDiameterPercent(1.5f);
+	countSlider.setPercent(0.1f);
+	countSlider.setRange(10.0f, 3000.0f);
+	countSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+	countSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	countSlider.setValueRef(&count);
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -72,29 +106,12 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//drawText(Vec2f(0.0f, 0.0f), text);
-	//glMatrixMode(GL_MODELVIEW);
-	//glPushMatrix();
-
-	//glTranslatef(WIDTH / 2.0f, HEIGHT / 2.0f, 0.0f);
-	//glRotatef(90.0f, 0.0f, 0.0f, -1.0f);
-	//glTranslatef(-WIDTH / 2.0f, -HEIGHT / 2.0f, 0.0f);
-	//glBegin(GL_LINES);
-	//glColorVec4f(Vec4f(0.0f, 1.0f, 0.0f));
-	//glVertexVec2f(Vec2f(WIDTH / 2.0f, HEIGHT / 2.0f));
-	//glVertexVec2f(Vec2f(WIDTH, HEIGHT / 2.0f));
-	//glEnd();
-	//glPopMatrix();
-
-	//glBegin(GL_LINES);
-	//glColorVec4f(Vec4f(0.0f, 0.0f, 1.0f));
-	//glVertexVec2f(Vec2f(WIDTH / 2.0f, HEIGHT / 2.0f));
-	//glVertexVec2f(Vec2f(WIDTH, HEIGHT / 2.0f));
-	//glEnd();
-
 	boidSystem.draw();
 
-	slider.draw();
+	cohSlider.draw();
+	sepSlider.draw();
+	aliSlider.draw();
+	countSlider.draw();
 
 	glutSwapBuffers();
 }
@@ -108,14 +125,25 @@ void idle()
 	printf("fps: %.2f\n", 1.0f / delta_time);
 	boidSystem.update(delta_time);
 
-	slider.update(mousePosition);
+	cohSlider.update(mousePosition);
+	sepSlider.update(mousePosition);
+	aliSlider.update(mousePosition);
+	countSlider.update(mousePosition);
+
+	boidSystem.setCount(static_cast<size_t>(count));
+	boidSystem.setBoidCohesion(cohesion);
+	boidSystem.setBoidSeparation(separation);
+	boidSystem.setBoidAlignment(alignment);
 
 	glutPostRedisplay();
 }
 
 void click_callback(int button, int state, int x, int y)
 {
-	slider.check(state, mousePosition);
+	cohSlider.check(state, mousePosition);
+	sepSlider.check(state, mousePosition);
+	aliSlider.check(state, mousePosition);
+	countSlider.check(state, mousePosition);
 }
 
 void keyboard_callback(unsigned char key, int x, int y)

@@ -19,11 +19,15 @@ void Slider::setRange(float min, float max)
 {
 	m_Min = min;
 	m_Max = max;
+
+	resetValue();
 }
 
 void Slider::setPercent(float percent)
 {
 	m_Percent = percent;
+
+	resetValue();
 }
 
 void Slider::setPosition(const Vec2f& position)
@@ -54,6 +58,8 @@ void Slider::setButtonColor(const Vec4f& color)
 void Slider::setValueRef(float* valuePtr)
 {
 	m_ValuePtr = valuePtr;
+
+	resetValue();
 }
 
 void Slider::check(int state, const Vec2f& mousePosition)
@@ -94,10 +100,7 @@ void Slider::update(const Vec2f& mousePosition)
 		m_Percent = (mousePosition.x - m_Position.x) / m_Size.x;
 	}
 
-	if (m_ValuePtr)
-	{
-		*m_ValuePtr = m_Min + (m_Max - m_Min) * m_Percent;
-	}
+	resetValue();
 }
 
 void Slider::draw()
@@ -152,4 +155,12 @@ void Slider::initModels()
 	}
 	glEnd();
 	glEndList();
+}
+
+void Slider::resetValue()
+{
+	if (m_ValuePtr)
+	{
+		*m_ValuePtr = m_Min + (m_Max - m_Min) * m_Percent;
+	}
 }
