@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 dependencies/
+dependencies/include/
+dependecies/include/GL/
