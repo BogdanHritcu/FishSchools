@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../utils/utils.h"
+#include <vector>
+
+class UserInterface;
 
 class Slider
 {
@@ -17,7 +20,7 @@ public:
 	
 	void setValueRef(float* valuePtr);
 
-	void check(int state, const Vec2f& mousePosition);
+	void check(const Vec2f& mousePosition, int state);
 
 	void update(const Vec2f& mousePosition);
 
@@ -46,4 +49,52 @@ private:
 
 	static GLuint m_SliderList;
 	static GLuint m_ButtonList;
+
+	friend class UserInterface;
+};
+
+class UserInterface
+{
+public:
+	UserInterface();
+	UserInterface(Vec2f* mousePositionPtr, int* mouseStatePtr);
+
+	Vec2f getSize() const;
+	Vec2f getPadding() const;
+
+	Slider& getSlider(size_t idx);
+
+	void setPosition(const Vec2f& position);
+	void setPadding(const Vec2f& padding);
+	void setColor(const Vec4f& color);
+	
+	Slider& addSlider();
+
+	void setMousePositionPtr(Vec2f* mousePositionPtr);
+	void setMouseStatePtr(int* mouseStatePtr);
+
+	void check();
+
+	void update();
+
+	void draw();
+
+	static void setDrawLists(GLuint panelList);
+	static void initModels();
+
+private:
+	std::vector<Slider> m_Sliders;
+
+	Vec2f m_Position;
+	Vec2f m_Size;
+
+	Vec2f m_Padding;
+	Vec2f m_Color;
+
+	Vec2f* m_MousePositionPtr;
+	int* m_MouseStatePtr;
+
+	static GLuint m_PanelList;
+	
+	bool m_ShouldResize;
 };
