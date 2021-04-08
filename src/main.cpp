@@ -13,8 +13,7 @@
 
 int WIDTH = 1200;
 int HEIGHT = 700;
-Vec2f mousePosition;
-int mouseState;
+MouseStats mouseStats;
 
 float old_time;
 float current_time;
@@ -24,14 +23,14 @@ float cohesion;
 float separation;
 float alignment;
 float count;
+std::string strCohesion;
+std::string strSeparation;
+std::string strAlignment;
+std::string strCount;
 
 BoidSystem boidSystem(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-Slider cohSlider;
-Slider sepSlider;
-Slider aliSlider;
-Slider countSlider;
 
-UserInterface userInterface(&mousePosition, &mouseState);
+UserInterface userInterface(&mouseStats);
 
 void init()
 {
@@ -50,94 +49,99 @@ void init()
 	// models
 	BoidSystem::initModels();
 	Slider::initModels();
+	TextBox::initModels();
 	UserInterface::initModels();
 
 	boidSystem.setBoidSize(Vec2f(15.0f, 5.0f));
-
-	boidSystem.setBoidCohesion(0.5f);
-	boidSystem.setBoidSeparation(0.5f);
-	boidSystem.setBoidAlignment(0.5f);
-	
 	boidSystem.setBoidViewDistance(60.0f);
 	boidSystem.setBoidMinSeparationDistance(15.0f);
 	boidSystem.setBoidMaxSpeed(100.0f);
 	boidSystem.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
 
 	boidSystem.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
-	
-	////////////////////////////////////////////////////
-	cohSlider.setPosition(Vec2f(10.0f, 10.0f));
-	cohSlider.setSize(Vec2f(400.0f, 10.0f));
-	cohSlider.setButtonDiameterPercent(1.5f);
-	cohSlider.setPercent(0.5f);
-	cohSlider.setRange(0.0f, 1.0f);
-	cohSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	cohSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	cohSlider.setValueRef(&cohesion);
-
-	sepSlider.setPosition(Vec2f(10.0f, 30.0f));
-	sepSlider.setSize(Vec2f(400.0f, 10.0f));
-	sepSlider.setButtonDiameterPercent(1.5f);
-	sepSlider.setPercent(0.5f);
-	sepSlider.setRange(0.0f, 1.0f);
-	sepSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	sepSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	sepSlider.setValueRef(&separation);
-
-	aliSlider.setPosition(Vec2f(10.0f, 50.0f));
-	aliSlider.setSize(Vec2f(400.0f, 10.0f));
-	aliSlider.setButtonDiameterPercent(1.5f);
-	aliSlider.setPercent(0.5f);
-	aliSlider.setRange(0.0f, 1.0f);
-	aliSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	aliSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	aliSlider.setValueRef(&alignment);
-
-	countSlider.setPosition(Vec2f(10.0f, 70.0f));
-	countSlider.setSize(Vec2f(400.0f, 10.0f));
-	countSlider.setButtonDiameterPercent(1.5f);
-	countSlider.setPercent(0.1f);
-	countSlider.setRange(10.0f, 3000.0f);
-	countSlider.setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	countSlider.setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	countSlider.setValueRef(&count);
 
 	//UI
+	userInterface.setPosition(Vec2f(10.0f, 10.0f));
+	userInterface.setPadding(Vec2f(10.0f, 10.0f));
 	userInterface.setColor(Vec4f(0.4f, 0.1f, 0.7f));
-	userInterface.setPosition(Vec2f(10.0f, 100.0f));
-	userInterface.setPadding(Vec2f(20.0f, 20.0f));
 
 	Slider* slider;
 	slider = &userInterface.addSlider();
 	slider->setPosition(Vec2f(0.0f, 0.0f));
 	slider->setSize(Vec2f(400.0f, 10.0f));
 	slider->setButtonDiameterPercent(1.5f);
-	slider->setPercent(0.5f);
-	slider->setRange(10.0f, 3000.0f);
 	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
 	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setValueRef(&count);
+	slider->setPercent(0.5f);
+	slider->setRange(0.0f, 1.0f);
+	slider->setValueRef(&cohesion);
 
 	slider = &userInterface.addSlider();
 	slider->setPosition(Vec2f(0.0f, 20.0f));
 	slider->setSize(Vec2f(400.0f, 10.0f));
 	slider->setButtonDiameterPercent(1.5f);
-	slider->setPercent(0.5f);
-	slider->setRange(10.0f, 3000.0f);
 	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
 	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setValueRef(&count);
+	slider->setPercent(0.5f);
+	slider->setRange(0.0f, 1.0f);
+	slider->setValueRef(&separation);
 
 	slider = &userInterface.addSlider();
 	slider->setPosition(Vec2f(0.0f, 40.0f));
 	slider->setSize(Vec2f(400.0f, 10.0f));
 	slider->setButtonDiameterPercent(1.5f);
-	slider->setPercent(0.5f);
-	slider->setRange(10.0f, 3000.0f);
 	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
 	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	slider->setPercent(0.5f);
+	slider->setRange(0.0f, 1.0f);
+	slider->setValueRef(&alignment);
+
+	slider = &userInterface.addSlider();
+	slider->setPosition(Vec2f(0.0f, 60.0f));
+	slider->setSize(Vec2f(400.0f, 10.0f));
+	slider->setButtonDiameterPercent(1.5f);
+	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+	slider->setPercent(0.1f);
+	slider->setRange(30.0f, 3000.0f);
 	slider->setValueRef(&count);
 
+	TextBox* textBox; 
+	textBox = &userInterface.addTextBox();
+	textBox->setPosition(Vec2f(420.0f, 0.0f));
+	textBox->setSize(Vec2f(40.0f, 14.0f));
+	textBox->setAutoSize(false);
+	textBox->setPadding(Vec2f(6.0f, 6.0f));
+	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
+	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+	textBox->setValueRef(&strCohesion);
+
+	textBox = &userInterface.addTextBox();
+	textBox->setPosition(Vec2f(420.0f, 20.0f));
+	textBox->setSize(Vec2f(40.0f, 14.0f));
+	textBox->setAutoSize(false);
+	textBox->setPadding(Vec2f(6.0f, 6.0f));
+	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
+	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+	textBox->setValueRef(&strSeparation);
+
+	textBox = &userInterface.addTextBox();
+	textBox->setPosition(Vec2f(420.0f, 40.0f));
+	textBox->setSize(Vec2f(40.0f, 14.0f));
+	textBox->setAutoSize(false);
+	textBox->setPadding(Vec2f(6.0f, 6.0f));
+	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
+	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+	textBox->setValueRef(&strAlignment);
+
+	textBox = &userInterface.addTextBox();
+	textBox->setPosition(Vec2f(420.0f, 60.0f));
+	textBox->setSize(Vec2f(40.0f, 14.0f));
+	textBox->setAutoSize(false);
+	textBox->setPadding(Vec2f(6.0f, 6.0f));
+	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
+	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+	textBox->setValueRef(&strCount);
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -150,12 +154,6 @@ void draw()
 
 	boidSystem.draw();
 
-	cohSlider.draw();
-	sepSlider.draw();
-	aliSlider.draw();
-	countSlider.draw();
-
-	//
 	userInterface.draw();
 
 	glutSwapBuffers();
@@ -168,34 +166,30 @@ void idle()
 	old_time = current_time;
 
 	//printf("fps: %.2f\n", 1.0f / delta_time);
-	boidSystem.update(delta_time);
-
-	cohSlider.update(mousePosition);
-	sepSlider.update(mousePosition);
-	aliSlider.update(mousePosition);
-	countSlider.update(mousePosition);
+	userInterface.update();
 
 	boidSystem.setCount(static_cast<size_t>(count));
 	boidSystem.setBoidCohesion(cohesion);
 	boidSystem.setBoidSeparation(separation);
 	boidSystem.setBoidAlignment(alignment);
+	boidSystem.update(delta_time);
 
-	//
-	userInterface.update();
+	strCohesion = std::to_string(cohesion);
+	strCohesion.resize(5);
+	strSeparation = std::to_string(separation);
+	strSeparation.resize(5);
+	strAlignment = std::to_string(alignment);
+	strAlignment.resize(5);
+	strCount = std::to_string(static_cast<int>(count));
+	strCount.resize(5);
 
 	glutPostRedisplay();
 }
 
 void click_callback(int button, int state, int x, int y)
 {
-	mouseState = state;
+	mouseStats.update(Vec2f(static_cast<float>(x), static_cast<float>(y)), button, state);
 
-	cohSlider.check(mousePosition, mouseState);
-	sepSlider.check(mousePosition, mouseState);
-	aliSlider.check(mousePosition, mouseState);
-	countSlider.check(mousePosition, mouseState);
-
-	//
 	userInterface.check();
 }
 
@@ -206,7 +200,7 @@ void keyboard_callback(unsigned char key, int x, int y)
 
 void mouse_position_callback(int x, int y)
 {
-	mousePosition = Vec2f((float)x, (float)y);
+	mouseStats.position = Vec2f(static_cast<float>(x), static_cast<float>(y));
 }
 
 void resize_callback(int width, int height)

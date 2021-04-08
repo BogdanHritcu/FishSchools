@@ -88,6 +88,18 @@ struct CircleBoundary2f
 	bool contains(float x, float y);
 };
 
+struct MouseStats
+{
+	Vec2f position;
+	int leftState;
+	int rightState;
+	int middleState;
+
+	MouseStats();
+
+	void update(Vec2f position, int button, int state);
+};
+
 /************************************************************************************************************
 * Alte functii utile.
 *************************************************************************************************************/

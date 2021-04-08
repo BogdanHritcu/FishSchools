@@ -2,6 +2,7 @@
 
 #include "../utils/utils.h"
 #include <vector>
+#include <string>
 
 class UserInterface;
 
@@ -53,11 +54,51 @@ private:
 	friend class UserInterface;
 };
 
+class TextBox
+{
+public:
+	TextBox();
+
+	void setPosition(const Vec2f& position);
+	void setSize(const Vec2f& size);
+	void setPadding(const Vec2f& padding);
+	void setTextColor(const Vec4f& color);
+	void setBoxColor(const Vec4f& color);
+	void setFont(void* font);
+	void setAutoSize(bool value);
+
+	void setValueRef(std::string* textPtr);
+
+	void update();
+
+	void draw();
+
+	static void setDrawLists(GLuint boxList);
+	static void initModels();
+
+private:
+	std::string* m_TextPtr;
+
+	Vec2f m_Position;
+	Vec2f m_Size;
+	Vec2f m_Padding;
+	Vec4f m_TextColor;
+	Vec4f m_BoxColor;
+	
+	void* m_Font;
+
+	bool m_AutoSize;
+
+	static GLuint m_BoxList;
+
+	friend class UserInterface;
+};
+
 class UserInterface
 {
 public:
 	UserInterface();
-	UserInterface(Vec2f* mousePositionPtr, int* mouseStatePtr);
+	UserInterface(MouseStats* mouseStatsPtr);
 
 	Vec2f getSize() const;
 	Vec2f getPadding() const;
@@ -69,9 +110,9 @@ public:
 	void setColor(const Vec4f& color);
 	
 	Slider& addSlider();
+	TextBox& addTextBox();
 
-	void setMousePositionPtr(Vec2f* mousePositionPtr);
-	void setMouseStatePtr(int* mouseStatePtr);
+	void setMouseStatsPtr(MouseStats* mouseStatsPtr);
 
 	void check();
 
@@ -84,6 +125,7 @@ public:
 
 private:
 	std::vector<Slider> m_Sliders;
+	std::vector<TextBox> m_TextBoxes;
 
 	Vec2f m_Position;
 	Vec2f m_Size;
@@ -91,8 +133,7 @@ private:
 	Vec2f m_Padding;
 	Vec2f m_Color;
 
-	Vec2f* m_MousePositionPtr;
-	int* m_MouseStatePtr;
+	MouseStats* m_MouseStatsPtr;
 
 	static GLuint m_PanelList;
 	

@@ -165,19 +165,132 @@ void Slider::resetValue()
 	}
 }
 
+GLuint TextBox::m_BoxList = 0;
+
+TextBox::TextBox()
+{
+	m_TextPtr = nullptr;
+	m_Font = GLUT_BITMAP_8_BY_13;
+	m_AutoSize = true;
+}
+
+void TextBox::setPosition(const Vec2f& position)
+{
+	m_Position = position;
+}
+
+void TextBox::setSize(const Vec2f& size)
+{
+	m_Size = size;	
+}
+
+void TextBox::setPadding(const Vec2f& padding)
+{
+	m_Padding = padding;
+}
+
+void TextBox::setTextColor(const Vec4f& color)
+{
+	m_TextColor = color;
+}
+
+void TextBox::setBoxColor(const Vec4f& color)
+{
+	m_BoxColor = color;
+}
+
+void TextBox::setFont(void* font)
+{
+	m_Font = font;
+}
+
+void TextBox::setAutoSize(bool value)
+{
+	m_AutoSize = value;
+}
+
+void TextBox::setValueRef(std::string* textPtr)
+{
+	m_TextPtr = textPtr;
+}
+
+void TextBox::update()
+{
+	if (!m_AutoSize)
+	{
+		return;
+	}
+
+	if (!m_TextPtr || !m_Font)
+	{
+		return;
+	}
+
+	size_t lines = 1;
+	for (size_t i = 0; i < m_TextPtr->size(); i++)
+	{
+		if ((*m_TextPtr)[i] == '\n')
+		{
+			lines++;
+		}
+	}
+
+	m_Size = Vec2f(static_cast<float>(glutBitmapLength(m_Font, reinterpret_cast<const unsigned char*>(m_TextPtr->c_str()))),
+		static_cast<float>(glutBitmapHeight(m_Font) * lines));
+}
+
+void TextBox::draw()
+{
+	float h = static_cast<float>(glutBitmapHeight(m_Font));
+	Vec2f off(0.0f, h / 2.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glTranslatef(m_Position.x, m_Position.y, 0.0f);
+	glPushMatrix();
+	glScalef(m_Size.x + m_Padding.x * 2.0f - off.x, m_Size.y + m_Padding.y * 2.0f - off.y, 1.0f);
+	glColorVec4f(m_BoxColor);
+	glCallList(m_BoxList);
+	glPopMatrix();
+
+	if (m_TextPtr)
+	{
+		drawText(m_Padding - off, *m_TextPtr, m_TextColor, m_Font);
+	}
+
+	glPopMatrix();
+}
+
+void TextBox::setDrawLists(GLuint boxList)
+{
+	m_BoxList = boxList;
+}
+
+void TextBox::initModels()
+{
+	m_BoxList = glGenLists(1);
+
+	glNewList(m_BoxList, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertexVec2f(Vec2f(0.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 1.0f));
+	glVertexVec2f(Vec2f(0.0f, 1.0f));
+	glEnd();
+	glEndList();
+}
+
 GLuint UserInterface::m_PanelList = 0;
 
 UserInterface::UserInterface()
 {
-	m_MousePositionPtr = nullptr;
-	m_MouseStatePtr = nullptr;
+	m_MouseStatsPtr = nullptr;
 	m_ShouldResize = false;
 }
 
-UserInterface::UserInterface(Vec2f* mousePositionPtr, int* mouseStatePtr)
+UserInterface::UserInterface(MouseStats* mouseStatsPtr)
 {
-	m_MousePositionPtr = mousePositionPtr;
-	m_MouseStatePtr = mouseStatePtr;
+	m_MouseStatsPtr = mouseStatsPtr;
 	m_ShouldResize = false;
 }
 
@@ -221,32 +334,35 @@ Slider& UserInterface::addSlider()
 	return m_Sliders.back();
 }
 
-void UserInterface::setMousePositionPtr(Vec2f* mousePositionPtr)
+TextBox& UserInterface::addTextBox()
 {
-	m_MousePositionPtr = mousePositionPtr;
+	m_TextBoxes.push_back(TextBox());
+	m_ShouldResize = true;
+
+	return m_TextBoxes.back();
 }
 
-void UserInterface::setMouseStatePtr(int* mouseStatePtr)
+void UserInterface::setMouseStatsPtr(MouseStats* mouseStatsPtr)
 {
-	m_MouseStatePtr = mouseStatePtr;
+	m_MouseStatsPtr = mouseStatsPtr;
 }
 
 void UserInterface::check()
 {
-	if (!m_MousePositionPtr || !m_MouseStatePtr)
+	if (!m_MouseStatsPtr)
 	{
 		return;
 	}
 
 	for (size_t i = 0; i < m_Sliders.size(); i++)
 	{
-		m_Sliders[i].check(*m_MousePositionPtr - m_Position - m_Padding, *m_MouseStatePtr);
+		m_Sliders[i].check(m_MouseStatsPtr->position - m_Position - m_Padding, m_MouseStatsPtr->leftState);
 	}
 }
 
 void UserInterface::update()
 {
-	if (m_ShouldResize)
+	if (true/*m_ShouldResize*/)
 	{
 		Vec2f extent(0.0f, 0.0f);
 
@@ -263,6 +379,19 @@ void UserInterface::update()
 			}
 		}
 
+		for (size_t i = 0; i < m_TextBoxes.size(); i++)
+		{
+			if (m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f > extent.x - m_Padding.x)
+			{
+				extent.x = m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f;
+			}
+
+			if (m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f > extent.y - m_Padding.y)
+			{
+				extent.y = m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f;
+			}
+		}
+
 		if (extent.x > m_Size.x)
 		{
 			m_Size.x = extent.x;
@@ -276,14 +405,23 @@ void UserInterface::update()
 		m_ShouldResize = false;
 	}
 
-	if (!m_MousePositionPtr)
+	bool value = false;
+	for (size_t i = 0; i < m_TextBoxes.size(); i++)
+	{
+		m_TextBoxes[i].update();
+
+		value |= m_TextBoxes[i].m_AutoSize;
+	}
+	m_ShouldResize = value;
+
+	if (!m_MouseStatsPtr)
 	{
 		return;
 	}
 	
 	for (size_t i = 0; i < m_Sliders.size(); i++)
 	{		
-		m_Sliders[i].update(*m_MousePositionPtr - m_Position - m_Padding);
+		m_Sliders[i].update(m_MouseStatsPtr->position - m_Position - m_Padding);
 	}
 }
 
@@ -299,6 +437,12 @@ void UserInterface::draw()
 	glPopMatrix();
 
 	glTranslatef(m_Padding.x, m_Padding.y, 0.0f);
+
+	for (size_t i = 0; i < m_TextBoxes.size(); i++)
+	{
+		m_TextBoxes[i].draw();
+	}
+
 	for (size_t i = 0; i < m_Sliders.size(); i++)
 	{
 		m_Sliders[i].draw();

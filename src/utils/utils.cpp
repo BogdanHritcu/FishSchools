@@ -260,6 +260,36 @@ bool CircleBoundary2f::contains(float x, float y)
 	return contains(Vec2f(x, y));
 }
 
+MouseStats::MouseStats()
+{
+	leftState = GLUT_UP;
+	rightState = GLUT_UP;
+	middleState = GLUT_UP;
+}
+
+void MouseStats::update(Vec2f position, int button, int state)
+{
+	this->position = position;
+
+	switch (button)
+	{
+	case GLUT_LEFT_BUTTON:
+		leftState = state;
+		return;
+
+	case GLUT_RIGHT_BUTTON:
+		rightState = state;
+		return;
+
+	case GLUT_MIDDLE_BUTTON:
+		middleState = state;
+		return;
+
+	default:
+		return;
+	}
+}
+
 /************************************************************************************************************
 * Implementarea altor functii.
 *************************************************************************************************************/
