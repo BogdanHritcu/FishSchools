@@ -174,8 +174,64 @@ BoidSystem::BoidSystem(size_t count, const Boundary2f& bounds)
 	}
 }
 
-void BoidSystem::setCount(size_t count)
+float* BoidSystem::getCount()
 {
+	return &m_Countf;
+}
+
+Vec2f* BoidSystem::getBoidSize()
+{
+	return &m_Size;
+}
+
+float* BoidSystem::getBoidCohesion()
+{
+	return &m_Cohesion;
+}
+
+float* BoidSystem::getBoidSeparation()
+{
+	return &m_Separation;
+}
+
+float* BoidSystem::getBoidAlignment()
+{
+	return &m_Alignment;
+}
+
+float* BoidSystem::getBoidViewDistance()
+{
+	return &m_ViewDistance;
+}
+
+float* BoidSystem::getBoidMinSeparationDistance()
+{
+	return &m_MinSeparationDistance;
+}
+
+Boundary2f* BoidSystem::getBoidBoundary()
+{
+	return &m_Boundary;
+}
+
+Vec2f* BoidSystem::getBoidBoundaryRepel()
+{
+	return &m_BoundaryRepel;
+}
+
+float* BoidSystem::getBoidMaxSpeed()
+{
+	return &m_MaxSpeed;
+}
+
+Vec4f* BoidSystem::getBoidColor(const Vec4f& color)
+{
+	return &m_Color;
+}
+
+void BoidSystem::setCount(size_t count)
+{	
+	m_Countf = static_cast<float>(count);
 	size_t oldCount = m_Boids.size();
 	m_Boids.resize(count);
 	m_NearBoids.clear();
@@ -255,8 +311,36 @@ void BoidSystem::findNearBoids(const Boid& boid)
 	}
 }
 
+BoidSystemStats BoidSystem::getStats() const
+{	
+	BoidSystemStats stats;
+
+	stats.boidSize = m_Size;
+	stats.cohesion = m_Cohesion;   //[0, 1]
+	stats.separation = m_Separation; //[0, 1]
+	stats.alignment = m_Alignment;  //[0, 1]
+	
+	stats.viewDistance = m_ViewDistance;
+	stats.minSeparationDistance = m_MinSeparationDistance;
+	stats.maxSpeed = m_MaxSpeed;
+	stats.boundaryRepel = m_BoundaryRepel;
+	stats.boundary = m_Boundary;
+
+	stats.color = m_Color;
+	stats.modelList = m_ModelList;
+
+	stats.count = m_Boids.size();
+	return stats;
+}
+
+BoidSystem* BoidSystem::getThis()
+{	
+	return this;
+}
+
 void BoidSystem::update(float dt)
-{
+{	
+	m_Boids.resize(static_cast<size_t>(m_Countf));
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
 		findNearBoids(m_Boids[i]);
@@ -274,7 +358,7 @@ void BoidSystem::update(float dt)
 void BoidSystem::draw() const
 {
 	glColorVec4f(m_Color);
-
+	printf("%.2f %.2f", m_Boids[0].getPosition().x, m_Boids[0].getPosition().y);
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
 		m_Boids[i].draw(m_ModelList, m_Size);

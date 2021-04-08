@@ -28,7 +28,7 @@ std::string strSeparation;
 std::string strAlignment;
 std::string strCount;
 
-BoidSystem boidSystem(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+std::vector<BoidSystem> boidSystems;
 
 UserInterface userInterface(&mouseStats);
 
@@ -52,13 +52,29 @@ void init()
 	TextBox::initModels();
 	UserInterface::initModels();
 
+	BoidSystem boidSystem(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
 	boidSystem.setBoidSize(Vec2f(15.0f, 5.0f));
 	boidSystem.setBoidViewDistance(60.0f);
 	boidSystem.setBoidMinSeparationDistance(15.0f);
 	boidSystem.setBoidMaxSpeed(100.0f);
 	boidSystem.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
-
 	boidSystem.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
+
+	boidSystems.push_back(boidSystem);
+
+	BoidSystem boidSystem1(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+	boidSystem1.setBoidSize(Vec2f(15.0f, 5.0f));
+	boidSystem1.setBoidViewDistance(60.0f);
+	boidSystem1.setBoidMinSeparationDistance(15.0f);
+	boidSystem1.setBoidMaxSpeed(100.0f);
+	boidSystem1.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
+	boidSystem1.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
+
+	boidSystem1.setBoidCohesion(0.5);
+	boidSystem1.setBoidSeparation(0.5);
+	boidSystem1.setBoidAlignment(0.5);
+
+	boidSystems.push_back(boidSystem1);
 
 	//UI
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
@@ -142,6 +158,8 @@ void init()
 	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
 	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
 	textBox->setValueRef(&strCount);
+
+	userInterface.setBoidSystemStats(&boidSystems[0]);
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -152,7 +170,10 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	boidSystem.draw();
+	for (size_t i = 0; i < boidSystems.size(); i++)
+	{
+		boidSystems[i].draw();
+	}
 
 	userInterface.draw();
 
@@ -168,20 +189,10 @@ void idle()
 	//printf("fps: %.2f\n", 1.0f / delta_time);
 	userInterface.update();
 
-	boidSystem.setCount(static_cast<size_t>(count));
-	boidSystem.setBoidCohesion(cohesion);
-	boidSystem.setBoidSeparation(separation);
-	boidSystem.setBoidAlignment(alignment);
-	boidSystem.update(delta_time);
-
-	strCohesion = std::to_string(cohesion);
-	strCohesion.resize(5);
-	strSeparation = std::to_string(separation);
-	strSeparation.resize(5);
-	strAlignment = std::to_string(alignment);
-	strAlignment.resize(5);
-	strCount = std::to_string(static_cast<int>(count));
-	strCount.resize(5);
+	for (size_t i = 0; i < boidSystems.size(); i++)
+	{
+		boidSystems[i].update(delta_time);
+	}
 
 	glutPostRedisplay();
 }
@@ -213,7 +224,11 @@ void resize_callback(int width, int height)
 	glLoadIdentity();
 	glOrtho(0.0, WIDTH, HEIGHT, 0.0, -1.0, 1.0);
 
-	boidSystem.setBoidBoundary(Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+	for (size_t i = 0; i < boidSystems.size(); i++)
+	{
+		boidSystems[i].setBoidBoundary(Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+	}
+	
 }
 
 int main(int argc, char** argv)

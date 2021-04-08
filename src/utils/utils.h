@@ -100,6 +100,26 @@ struct MouseStats
 	void update(Vec2f position, int button, int state);
 };
 
+struct BoidSystemStats
+{
+	Vec2f boidSize;
+
+	float cohesion;   //[0, 1]
+	float separation; //[0, 1]
+	float alignment;  //[0, 1]
+
+	float viewDistance;
+	float minSeparationDistance;
+	float maxSpeed;
+	Vec2f boundaryRepel;
+	Boundary2f boundary;
+
+	Vec4f color;
+	GLuint modelList;
+
+	size_t count;
+};
+
 /************************************************************************************************************
 * Alte functii utile.
 *************************************************************************************************************/

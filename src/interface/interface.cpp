@@ -30,6 +30,23 @@ void Slider::setPercent(float percent)
 	resetValue();
 }
 
+void Slider::setPercentFromValue(float value)
+{
+	if (value < m_Min)
+	{
+		m_Percent = 0.0f;
+		return;
+	}
+
+	if (value > m_Max)
+	{
+		m_Percent = 1.0f;
+		return;
+	}
+
+	m_Percent = (value - m_Min) / (m_Max - m_Min);
+}
+
 void Slider::setPosition(const Vec2f& position)
 {
 	m_Position = position;
@@ -212,30 +229,55 @@ void TextBox::setAutoSize(bool value)
 void TextBox::setValueRef(std::string* textPtr)
 {
 	m_TextPtr = textPtr;
+	m_FromValue = false;
+}
+
+void TextBox::setValueRef(float* valuePtr)
+{
+	m_ValuePtr = valuePtr;
+	m_FromValue = true;
+}
+
+void TextBox::useFloat(bool value)
+{
+	m_FromValue = value;
 }
 
 void TextBox::update()
-{
+{	
+	if (m_FromValue)
+	{
+		if (!m_ValuePtr)
+		{
+			return;
+		}
+		m_Text = std::to_string(*m_ValuePtr);
+	}
+
+	else
+	{
+		if (!m_TextPtr)
+		{
+			return;
+		}
+		m_Text = *m_TextPtr;
+	}
+
 	if (!m_AutoSize)
 	{
 		return;
 	}
 
-	if (!m_TextPtr || !m_Font)
-	{
-		return;
-	}
-
 	size_t lines = 1;
-	for (size_t i = 0; i < m_TextPtr->size(); i++)
+	for (size_t i = 0; i < m_Text.size(); i++)
 	{
-		if ((*m_TextPtr)[i] == '\n')
+		if (m_Text[i] == '\n')
 		{
 			lines++;
 		}
 	}
 
-	m_Size = Vec2f(static_cast<float>(glutBitmapLength(m_Font, reinterpret_cast<const unsigned char*>(m_TextPtr->c_str()))),
+	m_Size = Vec2f(static_cast<float>(glutBitmapLength(m_Font, reinterpret_cast<const unsigned char*>(m_Text.c_str()))),
 		static_cast<float>(glutBitmapHeight(m_Font) * lines));
 }
 
@@ -253,11 +295,8 @@ void TextBox::draw()
 	glCallList(m_BoxList);
 	glPopMatrix();
 
-	if (m_TextPtr)
-	{
-		drawText(m_Padding - off, *m_TextPtr, m_TextColor, m_Font);
-	}
-
+	drawText(m_Padding - off, m_Text, m_TextColor, m_Font);
+	
 	glPopMatrix();
 }
 
@@ -345,6 +384,27 @@ TextBox& UserInterface::addTextBox()
 void UserInterface::setMouseStatsPtr(MouseStats* mouseStatsPtr)
 {
 	m_MouseStatsPtr = mouseStatsPtr;
+}
+
+void UserInterface::setBoidSystemStats(BoidSystem* boidSystem)
+{
+	m_Sliders[0].setValueRef(boidSystem->getBoidCohesion());
+	m_Sliders[0].setPercentFromValue(*boidSystem->getBoidCohesion());
+
+	m_Sliders[1].setValueRef(boidSystem->getBoidSeparation());
+	m_Sliders[1].setPercentFromValue(*boidSystem->getBoidSeparation());
+
+	m_Sliders[2].setValueRef(boidSystem->getBoidAlignment());
+	m_Sliders[2].setPercentFromValue(*boidSystem->getBoidAlignment());
+
+	m_Sliders[3].setValueRef(boidSystem->getCount());
+	m_Sliders[3].setPercentFromValue(*boidSystem->getCount());
+	
+	m_TextBoxes[0].setValueRef(boidSystem->getBoidCohesion());
+	m_TextBoxes[1].setValueRef(boidSystem->getBoidSeparation());
+	m_TextBoxes[2].setValueRef(boidSystem->getBoidAlignment());
+	m_TextBoxes[3].setValueRef(boidSystem->getCount());
+
 }
 
 void UserInterface::check()

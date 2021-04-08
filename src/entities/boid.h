@@ -35,6 +35,19 @@ class BoidSystem
 public:
 	BoidSystem(size_t count, const Boundary2f& bounds);
 
+	float* getCount();
+	Vec2f* getBoidSize();
+	float* getBoidCohesion();
+	float* getBoidSeparation();
+	float* getBoidAlignment();
+	float* getBoidViewDistance();
+	float* getBoidMinSeparationDistance();
+	Boundary2f* getBoidBoundary();
+	Vec2f* getBoidBoundaryRepel();
+	float* getBoidMaxSpeed();
+		 
+	Vec4f* getBoidColor(const Vec4f& color);
+
 	void setCount(size_t count);
 	void setBoidSize(const Vec2f& v);
 	void setBoidCohesion(float cohesion);
@@ -50,6 +63,10 @@ public:
 
 	void findNearBoids(const Boid& boid);
 
+	BoidSystemStats getStats() const;
+
+	BoidSystem* getThis();
+
 	void update(float dt);
 
 	void draw() const;
@@ -60,6 +77,7 @@ public:
 private:
 	std::vector<Boid> m_Boids;
 
+	float m_Countf;
 	Vec2f m_Size;
 
 	float m_Cohesion;   //[0, 1]

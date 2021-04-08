@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../utils/utils.h"
+#include "../entities/boid.h"
 #include <vector>
 #include <string>
 
@@ -13,6 +14,7 @@ public:
 
 	void setRange(float min, float max);
 	void setPercent(float percent);
+	void setPercentFromValue(float value);
 	void setPosition(const Vec2f& position);
 	void setSize(const Vec2f& size);
 	void setButtonDiameterPercent(float percent);
@@ -68,6 +70,9 @@ public:
 	void setAutoSize(bool value);
 
 	void setValueRef(std::string* textPtr);
+	void setValueRef(float* valuePtr);
+
+	void useFloat(bool value);
 
 	void update();
 
@@ -78,6 +83,8 @@ public:
 
 private:
 	std::string* m_TextPtr;
+	float* m_ValuePtr;
+	std::string m_Text;
 
 	Vec2f m_Position;
 	Vec2f m_Size;
@@ -88,6 +95,7 @@ private:
 	void* m_Font;
 
 	bool m_AutoSize;
+	bool m_FromValue;
 
 	static GLuint m_BoxList;
 
@@ -114,6 +122,8 @@ public:
 
 	void setMouseStatsPtr(MouseStats* mouseStatsPtr);
 
+	void setBoidSystemStats(BoidSystem* boidSystem);
+
 	void check();
 
 	void update();
@@ -122,6 +132,7 @@ public:
 
 	static void setDrawLists(GLuint panelList);
 	static void initModels();
+
 
 private:
 	std::vector<Slider> m_Sliders;
