@@ -35,7 +35,7 @@ void Boid::setVelocity(const Vec2f& v)
 	m_Velocity = v;
 }
 
-void Boid::cohere(float cohesion, const std::vector<Boid*>& nearBoids)
+void Boid::cohere(float cohesion, const std::vector<Boid*>& nearBoids, float friendliness)
 {
 	if (nearBoids.empty())
 	{
@@ -52,10 +52,10 @@ void Boid::cohere(float cohesion, const std::vector<Boid*>& nearBoids)
 	averagePosition = averagePosition / static_cast<float>(nearBoids.size());
 	Vec2f cohDir = averagePosition - m_Position;
 
-	m_Velocity = m_Velocity + cohDir * cohesion;
+	m_Velocity = m_Velocity + cohDir * cohesion * friendliness;
 }
 
-void Boid::separate(float separation, float minSeparationDistance, const std::vector<Boid*>& nearBoids)
+void Boid::separate(float separation, float minSeparationDistance, const std::vector<Boid*>& nearBoids, float friendliness)
 {
 	if (nearBoids.empty())
 	{
@@ -71,10 +71,10 @@ void Boid::separate(float separation, float minSeparationDistance, const std::ve
 		sepDir = sepDir + v / (Vec2f::length2(v) / (minSeparationDistance * minSeparationDistance));
 	}
 
-	m_Velocity = m_Velocity + sepDir * separation;
+	m_Velocity = m_Velocity + sepDir * separation * std::min(1.0f / (friendliness + 0.000001f), 2.0f);
 }
 
-void Boid::align(float alignment, const std::vector<Boid*>& nearBoids)
+void Boid::align(float alignment, const std::vector<Boid*>& nearBoids, float friendliness)
 {
 	if (nearBoids.empty())
 	{
@@ -91,7 +91,7 @@ void Boid::align(float alignment, const std::vector<Boid*>& nearBoids)
 	aliDir = aliDir / static_cast<float>(nearBoids.size());
 	Vec2f v = aliDir - m_Velocity;
 
-	m_Velocity = m_Velocity + aliDir * alignment;
+	m_Velocity = m_Velocity + aliDir * alignment * friendliness;
 }
 
 void Boid::constrainBounds(const Boundary2f& bounds, const Vec2f& boundaryRepel)
@@ -148,7 +148,7 @@ void Boid::draw(GLuint modelList, const Vec2f& size) const
 
 GLuint BoidGroup::m_ModelList = 0;
 
-BoidGroup::BoidGroup(size_t count, const Boundary2f& bounds)
+BoidGroup::BoidGroup()
 {
 	m_Size = Vec2f(1.0f, 1.0f);
 
@@ -159,12 +159,27 @@ BoidGroup::BoidGroup(size_t count, const Boundary2f& bounds)
 	m_ViewDistance = 10.0f;
 	m_MinSeparationDistance = 40.0f;
 	m_MaxSpeed = 60.0f;
-	m_BoundaryRepel = Vec2f(10.0f, 10.0f);
-	m_Boundary = bounds;
 
 	m_Color = Vec4f(0.1f, 0.8f, 0.3f);
 
-	setCount(count);
+	setCount(30, Boundary2f(Vec2f(0.0f, 0.0f), Vec2f(800.0f, 600.0f)));
+}
+
+BoidGroup::BoidGroup(size_t count, const Boundary2f& boundary)
+{
+	m_Size = Vec2f(1.0f, 1.0f);
+
+	m_Cohesion = 0.2f;
+	m_Separation = 0.5f;
+	m_Alignment = 0.3f;
+
+	m_ViewDistance = 10.0f;
+	m_MinSeparationDistance = 40.0f;
+	m_MaxSpeed = 60.0f;
+
+	m_Color = Vec4f(0.1f, 0.8f, 0.3f);
+
+	setCount(count, boundary);
 }
 
 float* BoidGroup::getCount()
@@ -200,16 +215,6 @@ float* BoidGroup::getBoidViewDistance()
 float* BoidGroup::getBoidMinSeparationDistance()
 {
 	return &m_MinSeparationDistance;
-}
-
-Boundary2f* BoidGroup::getBoidBoundary()
-{
-	return &m_Boundary;
-}
-
-Vec2f* BoidGroup::getBoidBoundaryRepel()
-{
-	return &m_BoundaryRepel;
 }
 
 float* BoidGroup::getBoidMaxSpeed()
@@ -256,17 +261,20 @@ Vec2f BoidGroup::getAverageVelocity() const
 	return averageVelocity;
 }
 
-void BoidGroup::setCount(size_t count)
+std::vector<Boid>& BoidGroup::getBoids()
+{
+	return m_Boids;
+}
+
+void BoidGroup::setCount(size_t count, const Boundary2f& boundary)
 {	
 	m_Countf = static_cast<float>(count);
 	size_t oldCount = m_Boids.size();
 	m_Boids.resize(count);
-	m_NearBoids.reserve(count);
-	m_NearBoids.clear();
 
 	for (size_t i = oldCount; i < m_Boids.size(); i++)
 	{
-		m_Boids[i].setPosition(Vec2f(rand_float() * m_Boundary.max.x, rand_float() * m_Boundary.max.y));
+		m_Boids[i].setPosition(Vec2f(rand_float() * boundary.max.x, rand_float() * boundary.max.y));
 		m_Boids[i].setVelocity(rand_direction() * (rand_float(0.5f, 1.0f) * m_MaxSpeed));
 	}
 }
@@ -301,15 +309,6 @@ void BoidGroup::setBoidAlignment(float alignment)
 	m_Alignment = alignment;
 }
 
-void BoidGroup::setBoidBoundaryRepel(const Vec2f& v)
-{
-	m_BoundaryRepel = v;
-}
-
-void BoidGroup::setBoidBoundary(const Boundary2f& bounds)
-{
-	m_Boundary = bounds;
-}
 
 void BoidGroup::setBoidMaxSpeed(float maxSpeed)
 {
@@ -319,24 +318,6 @@ void BoidGroup::setBoidMaxSpeed(float maxSpeed)
 void BoidGroup::setBoidColor(const Vec4f& color)
 {
 	m_Color = color;
-}
-
-void BoidGroup::findNearBoids(const Boid& boid)
-{
-	m_NearBoids.clear();
-
-	for (size_t i = 0; i < m_Boids.size(); i++)
-	{
-		if (&boid != &m_Boids[i])
-		{
-			float distance2 = Vec2f::length2(boid.getPosition() - m_Boids[i].getPosition());
-
-			if (distance2 <= m_ViewDistance * m_ViewDistance)
-			{
-				m_NearBoids.push_back(const_cast<Boid*>(&m_Boids[i]));
-			}
-		}
-	}
 }
 
 BoidGroupStats BoidGroup::getStats() const
@@ -351,8 +332,6 @@ BoidGroupStats BoidGroup::getStats() const
 	stats.viewDistance = m_ViewDistance;
 	stats.minSeparationDistance = m_MinSeparationDistance;
 	stats.maxSpeed = m_MaxSpeed;
-	stats.boundaryRepel = m_BoundaryRepel;
-	stats.boundary = m_Boundary;
 
 	stats.color = m_Color;
 	stats.modelList = m_ModelList;
@@ -361,18 +340,26 @@ BoidGroupStats BoidGroup::getStats() const
 	return stats;
 }
 
-void BoidGroup::update(float dt)
+void BoidGroup::update(float dt, std::vector<Boid*> & nearFriendlyBoids, std::vector<Boid*>& nearStrangerBoids, 
+	Boundary2f &boundary, Vec2f& boundaryRepel)
 {	
-	setCount(static_cast<size_t>(m_Countf));
+	setCount(static_cast<size_t>(m_Countf), boundary);
 
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
-		findNearBoids(m_Boids[i]);
+		BoidSystem::findNearBoids(m_Boids[i]);
 
-		m_Boids[i].cohere(m_Cohesion, m_NearBoids);
-		m_Boids[i].separate(m_Separation, m_MinSeparationDistance, m_NearBoids);
-		m_Boids[i].align(m_Alignment, m_NearBoids);
-		m_Boids[i].constrainBounds(m_Boundary, m_BoundaryRepel);
+		m_Boids[i].cohere(m_Cohesion, nearFriendlyBoids, 1.0f);
+		m_Boids[i].cohere(m_Cohesion, nearStrangerBoids, m_Friendliness);
+
+		m_Boids[i].separate(m_Separation, m_MinSeparationDistance, nearFriendlyBoids, 1.0f);
+		m_Boids[i].separate(m_Separation, m_MinSeparationDistance, nearStrangerBoids, m_Friendliness);
+
+		m_Boids[i].align(m_Alignment, nearFriendlyBoids, 1.0f);
+		m_Boids[i].align(m_Alignment, nearStrangerBoids, m_Friendliness);
+
+
+		m_Boids[i].constrainBounds(boundary, boundaryRepel);
 		m_Boids[i].constrainSpeed(m_MaxSpeed);
 
 		m_Boids[i].update(dt);
@@ -406,4 +393,158 @@ void BoidGroup::initModels()
 	glVertexVec2f(Vec2f(-0.33f, -0.94f));
 	glEnd();
 	glEndList();
+}
+
+std::vector <Boid*> BoidSystem::m_NearFriendlyBoids;
+std::vector <Boid*> BoidSystem::m_NearStrangerBoids;
+
+float* BoidSystem::getCount()
+{
+	return &m_Countf;
+}
+
+float* BoidSystem::getGroupCohesion()
+{
+	return &m_Cohesion;
+}
+
+float* BoidSystem::getGroupSeparation()
+{
+	return &m_Separation;
+}
+
+float* BoidSystem::getGroupAlignment()
+{
+	return &m_Alignment;
+}
+
+float* BoidSystem::getGroupViewDistance()
+{
+	return &m_ViewDistance;
+}
+
+float* BoidSystem::getGroupMinSeparationDistance()
+{
+	return &m_MinSeparationDistance;
+}
+
+Boundary2f* BoidSystem::getBoidBoundary()
+{
+	return &m_Boundary;
+}
+
+Vec2f* BoidSystem::getBoidBoundaryRepel()
+{
+	return &m_BoundaryRepel;
+}
+
+void BoidSystem::setCount(size_t count)
+{
+	m_Countf = static_cast<float>(count);
+	size_t oldCount = m_BoidGroups.size();
+	m_BoidGroups.resize(count);
+	m_NearFriendlyBoids.reserve(300);
+	m_NearFriendlyBoids.clear();
+	m_NearStrangerBoids.reserve(300);
+	m_NearStrangerBoids.clear();
+
+	for (size_t i = oldCount; i < m_BoidGroups.size(); i++)
+	{
+		m_BoidGroups[i].setCount(rand_int(30, 100), m_Boundary);
+	}
+}
+
+void BoidSystem::setGroupCohesion(float cohesion)
+{
+	m_Cohesion = cohesion;
+}
+
+void BoidSystem::setGroupSeparation(float separation)
+{
+	m_Separation = separation;
+}
+
+void BoidSystem::setGroupAlignment(float alignment)
+{
+	m_Alignment = alignment;
+}
+
+void BoidSystem::setGroupViewDistance(float viewDistance)
+{
+	m_ViewDistance = viewDistance;
+}
+
+void BoidSystem::setGroupMinSeparationDistance(float minDistance)
+{
+	m_MinSeparationDistance = minDistance;
+}
+
+void BoidSystem::update(float dt)
+{
+	for (size_t i = 0; i < m_BoidGroups.size(); i++)
+	{
+		m_BoidGroups[i].update(dt, m_NearFriendlyBoids, m_NearStrangerBoids, m_Boundary, m_BoundaryRepel);
+	}
+}
+
+void BoidSystem::draw() const
+{
+	for (size_t i = 0; i < m_BoidGroups.size(); i++) 
+	{
+		m_BoidGroups[i].draw();
+	}
+}
+
+void BoidSystem::setBoidBoundaryRepel(const Vec2f& v)
+{
+	m_BoundaryRepel = v;
+}
+
+void BoidSystem::setBoidBoundary(const Boundary2f& bounds)
+{
+	m_Boundary = bounds;
+}
+
+void BoidSystem::findNearBoids(const Boid& boid)
+{
+	m_NearFriendlyBoids.clear();
+	m_NearStrangerBoids.clear();
+
+	bool found = false;
+	std::vector<Boid*> boidAux;
+	boidAux.reserve(300);
+
+	for (size_t i = 0; i < m_BoidGroups.size(); i++)
+	{
+		std::vector <Boid>& boids = m_BoidGroups[i].getBoids();
+		for (size_t j = 0; j < boids.size(); i++)
+		{
+			if (&boid == &boids[j])
+			{	
+				found = true;
+			}
+			else
+			{
+				float distance2 = Vec2f::length2(boid.getPosition() - boids[j].getPosition());
+
+				if (distance2 <= (*m_BoidGroups[i].getBoidViewDistance()) * (*m_BoidGroups[i].getBoidViewDistance()))
+				{
+					boidAux.push_back(&boids[j]);
+				}
+			}
+		}
+		if (found)
+		{	
+			m_NearFriendlyBoids = boidAux;
+			found = false;
+		}
+		else
+		{
+			for (size_t j = 0; j < boidAux.size(); j++)
+			{
+				m_NearStrangerBoids.push_back(boidAux[j]);
+			}
+		}
+		boidAux.clear();
+	}
 }

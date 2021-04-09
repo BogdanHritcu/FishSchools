@@ -15,9 +15,9 @@ public:
 	void setPosition(const Vec2f& v);
 	void setVelocity(const Vec2f& v);
 
-	void cohere(float cohesion, const std::vector<Boid*>& nearBoids);
-	void separate(float separation, float minSeparationDistance, const std::vector<Boid*>& nearBoids);
-	void align(float alignment, const std::vector<Boid*>& nearBoids);
+	void cohere(float cohesion, const std::vector<Boid*>& nearBoids, float friendliness);
+	void separate(float separation, float minSeparationDistance, const std::vector<Boid*>& nearBoids, float friendliness);
+	void align(float alignment, const std::vector<Boid*>& nearBoids, float friendliness);
 	void constrainBounds(const Boundary2f& bounds, const Vec2f& boundaryRepel);
 	void constrainSpeed(float maxSpeed);
 
@@ -33,6 +33,7 @@ private:
 class BoidGroup
 {
 public:
+	BoidGroup();
 	BoidGroup(size_t count, const Boundary2f& bounds);
 
 	Vec2f* getBoidSize();
@@ -43,32 +44,31 @@ public:
 	float* getBoidViewDistance();
 	float* getBoidMinSeparationDistance();
 	float* getBoidMaxSpeed();
-	Boundary2f* getBoidBoundary();
-	Vec2f* getBoidBoundaryRepel();
+
 	
 	Vec4f* getBoidColor(const Vec4f& color);
 
 	Vec2f getAveragePosition() const;
 	Vec2f getAverageVelocity() const;
 
-	void setCount(size_t count);
+	std::vector <Boid>& getBoids();
+
+	void setCount(size_t count, const Boundary2f&);
 	void setBoidSize(const Vec2f& v);
 	void setBoidCohesion(float cohesion);
 	void setBoidSeparation(float separation);
 	void setBoidAlignment(float alignment);
 	void setBoidViewDistance(float viewDistance);
 	void setBoidMinSeparationDistance(float minDistance);
-	void setBoidBoundary(const Boundary2f& bounds);
-	void setBoidBoundaryRepel(const Vec2f& v);
+
 	void setBoidMaxSpeed(float maxSpeed);
 
 	void setBoidColor(const Vec4f& color);
 
-	void findNearBoids(const Boid& boid);
-
 	BoidGroupStats getStats() const;
 
-	void update(float dt);
+	void update(float dt, std::vector<Boid*>& nearFriendlyBoids, std::vector<Boid*>& nearStrangerBoids,
+		Boundary2f& boundary, Vec2f& boundaryRepel);
 
 	void draw() const;
 
@@ -84,28 +84,27 @@ private:
 	float m_Cohesion;   //[0, 1]
 	float m_Separation; //[0, 1]
 	float m_Alignment;  //[0, 1]
+	float m_Friendliness; //[0, 1]
 
 	float m_ViewDistance;
 	float m_MinSeparationDistance;
 	float m_MaxSpeed;
-	Vec2f m_BoundaryRepel;
-	Boundary2f m_Boundary;
-
+	
 	Vec4f m_Color;
 	static GLuint m_ModelList;
-
-	std::vector<Boid*> m_NearBoids;
 };
 
 class BoidSystem
 {
 public:
 	float* getCount();
-	float* getBoidCohesion();
-	float* getBoidSeparation();
-	float* getBoidAlignment();
-	float* getBoidViewDistance();
-	float* getBoidMinSeparationDistance();
+	float* getGroupCohesion();
+	float* getGroupSeparation();
+	float* getGroupAlignment();
+	float* getGroupViewDistance();
+	float* getGroupMinSeparationDistance();
+	Boundary2f* getBoidBoundary();
+	Vec2f* getBoidBoundaryRepel();
 
 	void setCount(size_t count);
 	void setGroupCohesion(float cohesion);
@@ -113,6 +112,10 @@ public:
 	void setGroupAlignment(float alignment);
 	void setGroupViewDistance(float viewDistance);
 	void setGroupMinSeparationDistance(float minDistance);
+	void setBoidBoundary(const Boundary2f& bounds);
+	void setBoidBoundaryRepel(const Vec2f& v);
+
+	static void findNearBoids(const Boid& boid);
 
 	void update(float dt);
 
@@ -130,4 +133,10 @@ private:
 
 	float m_ViewDistance;
 	float m_MinSeparationDistance;
+
+	Boundary2f m_Boundary;
+	Vec2f m_BoundaryRepel;
+
+	static std::vector<Boid*> m_NearFriendlyBoids;
+	static std::vector<Boid*> m_NearStrangerBoids;
 };
