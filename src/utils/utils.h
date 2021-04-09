@@ -101,7 +101,7 @@ struct MouseStats
 	void update(Vec2f position, int button, int state);
 };
 
-struct BoidSystemStats
+struct BoidGroupStats
 {
 	Vec2f boidSize;
 

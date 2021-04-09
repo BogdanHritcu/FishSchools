@@ -394,24 +394,24 @@ void UserInterface::setMouseStatsPtr(MouseStats* mouseStatsPtr)
 	m_MouseStatsPtr = mouseStatsPtr;
 }
 
-void UserInterface::setBoidSystemStats(BoidSystem* boidSystem)
+void UserInterface::setBoidGroupStats(BoidGroup* boidGroup)
 {
-	m_Sliders[0].setValueRef(boidSystem->getBoidCohesion());
-	m_Sliders[0].setPercentFromValue(*boidSystem->getBoidCohesion());
+	m_Sliders[0].setValueRef(boidGroup->getBoidCohesion());
+	m_Sliders[0].setPercentFromValue(*boidGroup->getBoidCohesion());
 
-	m_Sliders[1].setValueRef(boidSystem->getBoidSeparation());
-	m_Sliders[1].setPercentFromValue(*boidSystem->getBoidSeparation());
+	m_Sliders[1].setValueRef(boidGroup->getBoidSeparation());
+	m_Sliders[1].setPercentFromValue(*boidGroup->getBoidSeparation());
 
-	m_Sliders[2].setValueRef(boidSystem->getBoidAlignment());
-	m_Sliders[2].setPercentFromValue(*boidSystem->getBoidAlignment());
+	m_Sliders[2].setValueRef(boidGroup->getBoidAlignment());
+	m_Sliders[2].setPercentFromValue(*boidGroup->getBoidAlignment());
 
-	m_Sliders[3].setValueRef(boidSystem->getCount());
-	m_Sliders[3].setPercentFromValue(*boidSystem->getCount());
+	m_Sliders[3].setValueRef(boidGroup->getCount());
+	m_Sliders[3].setPercentFromValue(*boidGroup->getCount());
 	
-	m_TextBoxes[0].setValueRef(boidSystem->getBoidCohesion());
-	m_TextBoxes[1].setValueRef(boidSystem->getBoidSeparation());
-	m_TextBoxes[2].setValueRef(boidSystem->getBoidAlignment());
-	m_TextBoxes[3].setValueRef(boidSystem->getCount());
+	m_TextBoxes[0].setValueRef(boidGroup->getBoidCohesion());
+	m_TextBoxes[1].setValueRef(boidGroup->getBoidSeparation());
+	m_TextBoxes[2].setValueRef(boidGroup->getBoidAlignment());
+	m_TextBoxes[3].setValueRef(boidGroup->getCount());
 }
 
 void UserInterface::check()

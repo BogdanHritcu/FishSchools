@@ -30,10 +30,10 @@ private:
 	Vec2f m_Velocity;
 };
 
-class BoidSystem
+class BoidGroup
 {
 public:
-	BoidSystem(size_t count, const Boundary2f& bounds);
+	BoidGroup(size_t count, const Boundary2f& bounds);
 
 	float* getCount();
 	Vec2f* getBoidSize();
@@ -63,7 +63,7 @@ public:
 
 	void findNearBoids(const Boid& boid);
 
-	BoidSystemStats getStats() const;
+	BoidGroupStats getStats() const;
 
 	void update(float dt);
 

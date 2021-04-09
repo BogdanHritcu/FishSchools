@@ -143,12 +143,12 @@ void Boid::draw(GLuint modelList, const Vec2f& size) const
 }
 
 /************************************************************************************************************
-*											BoidSystem
+*											BoidGroup
 *************************************************************************************************************/
 
-GLuint BoidSystem::m_ModelList = 0;
+GLuint BoidGroup::m_ModelList = 0;
 
-BoidSystem::BoidSystem(size_t count, const Boundary2f& bounds)
+BoidGroup::BoidGroup(size_t count, const Boundary2f& bounds)
 {
 	m_Size = Vec2f(1.0f, 1.0f);
 
@@ -167,62 +167,62 @@ BoidSystem::BoidSystem(size_t count, const Boundary2f& bounds)
 	setCount(count);
 }
 
-float* BoidSystem::getCount()
+float* BoidGroup::getCount()
 {
 	return &m_Countf;
 }
 
-Vec2f* BoidSystem::getBoidSize()
+Vec2f* BoidGroup::getBoidSize()
 {
 	return &m_Size;
 }
 
-float* BoidSystem::getBoidCohesion()
+float* BoidGroup::getBoidCohesion()
 {
 	return &m_Cohesion;
 }
 
-float* BoidSystem::getBoidSeparation()
+float* BoidGroup::getBoidSeparation()
 {
 	return &m_Separation;
 }
 
-float* BoidSystem::getBoidAlignment()
+float* BoidGroup::getBoidAlignment()
 {
 	return &m_Alignment;
 }
 
-float* BoidSystem::getBoidViewDistance()
+float* BoidGroup::getBoidViewDistance()
 {
 	return &m_ViewDistance;
 }
 
-float* BoidSystem::getBoidMinSeparationDistance()
+float* BoidGroup::getBoidMinSeparationDistance()
 {
 	return &m_MinSeparationDistance;
 }
 
-Boundary2f* BoidSystem::getBoidBoundary()
+Boundary2f* BoidGroup::getBoidBoundary()
 {
 	return &m_Boundary;
 }
 
-Vec2f* BoidSystem::getBoidBoundaryRepel()
+Vec2f* BoidGroup::getBoidBoundaryRepel()
 {
 	return &m_BoundaryRepel;
 }
 
-float* BoidSystem::getBoidMaxSpeed()
+float* BoidGroup::getBoidMaxSpeed()
 {
 	return &m_MaxSpeed;
 }
 
-Vec4f* BoidSystem::getBoidColor(const Vec4f& color)
+Vec4f* BoidGroup::getBoidColor(const Vec4f& color)
 {
 	return &m_Color;
 }
 
-void BoidSystem::setCount(size_t count)
+void BoidGroup::setCount(size_t count)
 {	
 	m_Countf = static_cast<float>(count);
 	size_t oldCount = m_Boids.size();
@@ -237,57 +237,57 @@ void BoidSystem::setCount(size_t count)
 	}
 }
 
-void BoidSystem::setBoidSize(const Vec2f& v)
+void BoidGroup::setBoidSize(const Vec2f& v)
 {
 	m_Size = v;
 }
 
-void BoidSystem::setBoidViewDistance(float viewDistance)
+void BoidGroup::setBoidViewDistance(float viewDistance)
 {
 	m_ViewDistance = viewDistance;
 }
 
-void BoidSystem::setBoidMinSeparationDistance(float minDistance)
+void BoidGroup::setBoidMinSeparationDistance(float minDistance)
 {
 	m_MinSeparationDistance = minDistance;
 }
 
-void BoidSystem::setBoidCohesion(float cohesion)
+void BoidGroup::setBoidCohesion(float cohesion)
 {
 	m_Cohesion = cohesion;
 }
 
-void BoidSystem::setBoidSeparation(float separation)
+void BoidGroup::setBoidSeparation(float separation)
 {
 	m_Separation = separation;
 }
 
-void BoidSystem::setBoidAlignment(float alignment)
+void BoidGroup::setBoidAlignment(float alignment)
 {
 	m_Alignment = alignment;
 }
 
-void BoidSystem::setBoidBoundaryRepel(const Vec2f& v)
+void BoidGroup::setBoidBoundaryRepel(const Vec2f& v)
 {
 	m_BoundaryRepel = v;
 }
 
-void BoidSystem::setBoidBoundary(const Boundary2f& bounds)
+void BoidGroup::setBoidBoundary(const Boundary2f& bounds)
 {
 	m_Boundary = bounds;
 }
 
-void BoidSystem::setBoidMaxSpeed(float maxSpeed)
+void BoidGroup::setBoidMaxSpeed(float maxSpeed)
 {
 	m_MaxSpeed = maxSpeed;
 }
 
-void BoidSystem::setBoidColor(const Vec4f& color)
+void BoidGroup::setBoidColor(const Vec4f& color)
 {
 	m_Color = color;
 }
 
-void BoidSystem::findNearBoids(const Boid& boid)
+void BoidGroup::findNearBoids(const Boid& boid)
 {
 	m_NearBoids.clear();
 
@@ -305,9 +305,9 @@ void BoidSystem::findNearBoids(const Boid& boid)
 	}
 }
 
-BoidSystemStats BoidSystem::getStats() const
+BoidGroupStats BoidGroup::getStats() const
 {	
-	BoidSystemStats stats;
+	BoidGroupStats stats;
 
 	stats.boidSize = m_Size;
 	stats.cohesion = m_Cohesion;   //[0, 1]
@@ -327,7 +327,7 @@ BoidSystemStats BoidSystem::getStats() const
 	return stats;
 }
 
-void BoidSystem::update(float dt)
+void BoidGroup::update(float dt)
 {	
 	setCount(static_cast<size_t>(m_Countf));
 
@@ -345,7 +345,7 @@ void BoidSystem::update(float dt)
 	}
 }
 
-void BoidSystem::draw() const
+void BoidGroup::draw() const
 {
 	glColorVec4f(m_Color);
 	
@@ -355,12 +355,12 @@ void BoidSystem::draw() const
 	}
 }
 
-void BoidSystem::setModelList(GLuint modelList)
+void BoidGroup::setModelList(GLuint modelList)
 {
 	m_ModelList = modelList;
 }
 
-void BoidSystem::initModels()
+void BoidGroup::initModels()
 {
 	m_ModelList = glGenLists(1);
 

@@ -124,7 +124,7 @@ public:
 
 	void setMouseStatsPtr(MouseStats* mouseStatsPtr);
 
-	void setBoidSystemStats(BoidSystem* boidSystem);
+	void setBoidGroupStats(BoidGroup* boidGroup);
 
 	void check();
 

@@ -28,7 +28,7 @@ std::string strSeparation;
 std::string strAlignment;
 std::string strCount;
 
-std::vector<BoidSystem> boidSystems;
+std::vector<BoidGroup> boidGroups;
 
 UserInterface userInterface(&mouseStats);
 
@@ -47,24 +47,24 @@ void init()
 	glLoadIdentity();
 
 	// models
-	BoidSystem::initModels();
+	BoidGroup::initModels();
 	Slider::initModels();
 	TextBox::initModels();
 	UserInterface::initModels();
 
-	BoidSystem boidSystem(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-	boidSystem.setBoidSize(Vec2f(15.0f, 5.0f));
-	boidSystem.setBoidViewDistance(60.0f);
-	boidSystem.setBoidMinSeparationDistance(15.0f);
-	boidSystem.setBoidMaxSpeed(100.0f);
-	boidSystem.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
-	boidSystem.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
+	BoidGroup boidGroup(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+	boidGroup.setBoidSize(Vec2f(15.0f, 5.0f));
+	boidGroup.setBoidViewDistance(60.0f);
+	boidGroup.setBoidMinSeparationDistance(15.0f);
+	boidGroup.setBoidMaxSpeed(100.0f);
+	boidGroup.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
+	boidGroup.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
 
-	boidSystems.push_back(boidSystem);
+	boidGroups.push_back(boidGroup);
 
-	boidSystem.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
+	boidGroup.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
 
-	boidSystems.push_back(boidSystem);
+	boidGroups.push_back(boidGroup);
 
 	//UI
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
@@ -150,7 +150,7 @@ void init()
 	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
 	textBox->setValueRef(&strCount);
 
-	userInterface.setBoidSystemStats(&boidSystems[0]);
+	userInterface.setBoidGroupStats(&boidGroups[0]);
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -161,9 +161,9 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (size_t i = 0; i < boidSystems.size(); i++)
+	for (size_t i = 0; i < boidGroups.size(); i++)
 	{
-		boidSystems[i].draw();
+		boidGroups[i].draw();
 	}
 
 	userInterface.draw();
@@ -180,9 +180,9 @@ void idle()
 	//printf("fps: %.2f\n", 1.0f / delta_time);
 	userInterface.update();
 
-	for (size_t i = 0; i < boidSystems.size(); i++)
+	for (size_t i = 0; i < boidGroups.size(); i++)
 	{
-		boidSystems[i].update(delta_time);
+		boidGroups[i].update(delta_time);
 	}
 
 	glutPostRedisplay();
@@ -215,9 +215,9 @@ void resize_callback(int width, int height)
 	glLoadIdentity();
 	glOrtho(0.0, WIDTH, HEIGHT, 0.0, -1.0, 1.0);
 
-	for (size_t i = 0; i < boidSystems.size(); i++)
+	for (size_t i = 0; i < boidGroups.size(); i++)
 	{
-		boidSystems[i].setBoidBoundary(Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
+		boidGroups[i].setBoidBoundary(Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
 	}
 	
 }
