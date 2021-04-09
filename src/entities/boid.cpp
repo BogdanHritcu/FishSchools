@@ -164,14 +164,7 @@ BoidSystem::BoidSystem(size_t count, const Boundary2f& bounds)
 
 	m_Color = Vec4f(0.1f, 0.8f, 0.3f);
 
-	m_Boids.resize(count);
-	m_NearBoids.reserve(count);
-
-	for (size_t i = 0; i < m_Boids.size(); i++)
-	{
-		m_Boids[i].setPosition(Vec2f(rand_float() * m_Boundary.max.x, rand_float() * m_Boundary.max.y));
-		m_Boids[i].setVelocity(rand_direction() * (rand_float(0.5f, 1.0f) * m_MaxSpeed));
-	}
+	setCount(count);
 }
 
 float* BoidSystem::getCount()
@@ -234,6 +227,7 @@ void BoidSystem::setCount(size_t count)
 	m_Countf = static_cast<float>(count);
 	size_t oldCount = m_Boids.size();
 	m_Boids.resize(count);
+	m_NearBoids.reserve(count);
 	m_NearBoids.clear();
 
 	for (size_t i = oldCount; i < m_Boids.size(); i++)
@@ -333,14 +327,10 @@ BoidSystemStats BoidSystem::getStats() const
 	return stats;
 }
 
-BoidSystem* BoidSystem::getThis()
-{	
-	return this;
-}
-
 void BoidSystem::update(float dt)
 {	
-	m_Boids.resize(static_cast<size_t>(m_Countf));
+	setCount(static_cast<size_t>(m_Countf));
+
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
 		findNearBoids(m_Boids[i]);
@@ -358,7 +348,7 @@ void BoidSystem::update(float dt)
 void BoidSystem::draw() const
 {
 	glColorVec4f(m_Color);
-	printf("%.2f %.2f", m_Boids[0].getPosition().x, m_Boids[0].getPosition().y);
+	
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
 		m_Boids[i].draw(m_ModelList, m_Size);

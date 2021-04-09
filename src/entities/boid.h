@@ -65,8 +65,6 @@ public:
 
 	BoidSystemStats getStats() const;
 
-	BoidSystem* getThis();
-
 	void update(float dt);
 
 	void draw() const;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <GL/freeglut.h>
 
 #define M_PI 3.14159265358979
@@ -135,3 +136,13 @@ void drawText(Vec2f pos, const std::string& text, Vec4f color = Vec4f(1.0f, 1.0f
 void glColorVec4f(const Vec4f& color);
 void glVertexVec2f(const Vec2f& vec);
 void glVertexVec4f(const Vec4f& vec);
+
+template <typename T>
+std::string to_stringn(const T value, std::streamsize precision)
+{
+	std::ostringstream out;
+	out.precision(precision);
+	out << std::fixed << value;
+
+	return out.str();
+}

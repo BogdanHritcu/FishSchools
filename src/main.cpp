@@ -62,19 +62,9 @@ void init()
 
 	boidSystems.push_back(boidSystem);
 
-	BoidSystem boidSystem1(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-	boidSystem1.setBoidSize(Vec2f(15.0f, 5.0f));
-	boidSystem1.setBoidViewDistance(60.0f);
-	boidSystem1.setBoidMinSeparationDistance(15.0f);
-	boidSystem1.setBoidMaxSpeed(100.0f);
-	boidSystem1.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
-	boidSystem1.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
+	boidSystem.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
 
-	boidSystem1.setBoidCohesion(0.5);
-	boidSystem1.setBoidSeparation(0.5);
-	boidSystem1.setBoidAlignment(0.5);
-
-	boidSystems.push_back(boidSystem1);
+	boidSystems.push_back(boidSystem);
 
 	//UI
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
@@ -154,6 +144,7 @@ void init()
 	textBox->setPosition(Vec2f(420.0f, 60.0f));
 	textBox->setSize(Vec2f(40.0f, 14.0f));
 	textBox->setAutoSize(false);
+	textBox->setPrecision(0);
 	textBox->setPadding(Vec2f(6.0f, 6.0f));
 	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
 	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));

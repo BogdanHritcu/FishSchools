@@ -68,6 +68,7 @@ public:
 	void setBoxColor(const Vec4f& color);
 	void setFont(void* font);
 	void setAutoSize(bool value);
+	void setPrecision(std::streamsize precision);
 
 	void setValueRef(std::string* textPtr);
 	void setValueRef(float* valuePtr);
@@ -96,6 +97,7 @@ private:
 
 	bool m_AutoSize;
 	bool m_FromValue;
+	std::streamsize m_Precision;
 
 	static GLuint m_BoxList;
 

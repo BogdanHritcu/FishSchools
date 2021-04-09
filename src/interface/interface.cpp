@@ -187,8 +187,11 @@ GLuint TextBox::m_BoxList = 0;
 TextBox::TextBox()
 {
 	m_TextPtr = nullptr;
+	m_ValuePtr = nullptr;
 	m_Font = GLUT_BITMAP_8_BY_13;
 	m_AutoSize = true;
+	m_FromValue = false;
+	m_Precision = 3;
 }
 
 void TextBox::setPosition(const Vec2f& position)
@@ -226,6 +229,11 @@ void TextBox::setAutoSize(bool value)
 	m_AutoSize = value;
 }
 
+void TextBox::setPrecision(std::streamsize precision)
+{
+	m_Precision = precision;
+}
+
 void TextBox::setValueRef(std::string* textPtr)
 {
 	m_TextPtr = textPtr;
@@ -251,7 +259,7 @@ void TextBox::update()
 		{
 			return;
 		}
-		m_Text = std::to_string(*m_ValuePtr);
+		m_Text = to_stringn(*m_ValuePtr, m_Precision);
 	}
 
 	else
@@ -404,7 +412,6 @@ void UserInterface::setBoidSystemStats(BoidSystem* boidSystem)
 	m_TextBoxes[1].setValueRef(boidSystem->getBoidSeparation());
 	m_TextBoxes[2].setValueRef(boidSystem->getBoidAlignment());
 	m_TextBoxes[3].setValueRef(boidSystem->getCount());
-
 }
 
 void UserInterface::check()
