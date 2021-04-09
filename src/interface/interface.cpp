@@ -412,6 +412,7 @@ void UserInterface::setBoidGroupStats(BoidGroup* boidGroup)
 	m_TextBoxes[1].setValueRef(boidGroup->getBoidSeparation());
 	m_TextBoxes[2].setValueRef(boidGroup->getBoidAlignment());
 	m_TextBoxes[3].setValueRef(boidGroup->getCount());
+	m_TextBoxes[3].setPrecision(0);
 }
 
 void UserInterface::check()

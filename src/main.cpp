@@ -19,15 +19,6 @@ float old_time;
 float current_time;
 float delta_time;
 
-float cohesion;
-float separation;
-float alignment;
-float count;
-std::string strCohesion;
-std::string strSeparation;
-std::string strAlignment;
-std::string strCount;
-
 std::vector<BoidGroup> boidGroups;
 
 UserInterface userInterface(&mouseStats);
@@ -72,83 +63,51 @@ void init()
 	userInterface.setColor(Vec4f(0.4f, 0.1f, 0.7f));
 
 	Slider* slider;
-	slider = &userInterface.addSlider();
-	slider->setPosition(Vec2f(0.0f, 0.0f));
-	slider->setSize(Vec2f(400.0f, 10.0f));
-	slider->setButtonDiameterPercent(1.5f);
-	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setPercent(0.5f);
-	slider->setRange(0.0f, 1.0f);
-	slider->setValueRef(&cohesion);
+	const size_t sliderCount = 4;
+	Vec2f sliderPosition(0.0f, 0.0f);
+	Vec2f sliderOff(0.0f, 20.0f);
+	Vec2f sliderRanges[sliderCount] =
+	{
+		Vec2f(0.0f, 1.0f),
+		Vec2f(0.0f, 1.0f),
+		Vec2f(0.0f, 1.0f),
+		Vec2f(20.0f, 3000.0f),
+	};
+	float sliderPercents[sliderCount] =
+	{
+		0.5f,
+		0.5f,
+		0.5f,
+		0.05f
+	};
 
-	slider = &userInterface.addSlider();
-	slider->setPosition(Vec2f(0.0f, 20.0f));
-	slider->setSize(Vec2f(400.0f, 10.0f));
-	slider->setButtonDiameterPercent(1.5f);
-	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setPercent(0.5f);
-	slider->setRange(0.0f, 1.0f);
-	slider->setValueRef(&separation);
+	TextBox* textBox;
+	Vec2f textBoxPosition(420.0f, 0.0f);
+	Vec2f textBoxOff(0.0f, 20.0f);
 
-	slider = &userInterface.addSlider();
-	slider->setPosition(Vec2f(0.0f, 40.0f));
-	slider->setSize(Vec2f(400.0f, 10.0f));
-	slider->setButtonDiameterPercent(1.5f);
-	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setPercent(0.5f);
-	slider->setRange(0.0f, 1.0f);
-	slider->setValueRef(&alignment);
+	for (size_t i = 0; i < sliderCount; i++)
+	{
+		// sliders
+		slider = &userInterface.addSlider();
+		slider->setPosition(sliderPosition + sliderOff * i);
+		slider->setPercent(sliderPercents[i]);
+		slider->setRange(sliderRanges[i].x, sliderRanges[i].y);
 
-	slider = &userInterface.addSlider();
-	slider->setPosition(Vec2f(0.0f, 60.0f));
-	slider->setSize(Vec2f(400.0f, 10.0f));
-	slider->setButtonDiameterPercent(1.5f);
-	slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-	slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
-	slider->setPercent(0.1f);
-	slider->setRange(30.0f, 3000.0f);
-	slider->setValueRef(&count);
+		slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+		slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+		slider->setSize(Vec2f(400.0f, 10.0f));
+		slider->setButtonDiameterPercent(1.5f);
 
-	TextBox* textBox; 
-	textBox = &userInterface.addTextBox();
-	textBox->setPosition(Vec2f(420.0f, 0.0f));
-	textBox->setSize(Vec2f(40.0f, 14.0f));
-	textBox->setAutoSize(false);
-	textBox->setPadding(Vec2f(6.0f, 6.0f));
-	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
-	textBox->setValueRef(&strCohesion);
+		// value text boxes
+		textBox = &userInterface.addTextBox();
+		textBox->setPosition(textBoxPosition + textBoxOff * i);
 
-	textBox = &userInterface.addTextBox();
-	textBox->setPosition(Vec2f(420.0f, 20.0f));
-	textBox->setSize(Vec2f(40.0f, 14.0f));
-	textBox->setAutoSize(false);
-	textBox->setPadding(Vec2f(6.0f, 6.0f));
-	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
-	textBox->setValueRef(&strSeparation);
-
-	textBox = &userInterface.addTextBox();
-	textBox->setPosition(Vec2f(420.0f, 40.0f));
-	textBox->setSize(Vec2f(40.0f, 14.0f));
-	textBox->setAutoSize(false);
-	textBox->setPadding(Vec2f(6.0f, 6.0f));
-	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
-	textBox->setValueRef(&strAlignment);
-
-	textBox = &userInterface.addTextBox();
-	textBox->setPosition(Vec2f(420.0f, 60.0f));
-	textBox->setSize(Vec2f(40.0f, 14.0f));
-	textBox->setAutoSize(false);
-	textBox->setPrecision(0);
-	textBox->setPadding(Vec2f(6.0f, 6.0f));
-	textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-	textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
-	textBox->setValueRef(&strCount);
+		textBox->setSize(Vec2f(40.0f, 14.0f));
+		textBox->setAutoSize(false);
+		textBox->setPadding(Vec2f(6.0f, 6.0f));
+		textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
+		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+	}
 
 	userInterface.setBoidGroupStats(&boidGroups[0]);
 	////////////////////////////////////////////////////
