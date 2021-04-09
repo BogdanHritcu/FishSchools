@@ -222,6 +222,40 @@ Vec4f* BoidGroup::getBoidColor(const Vec4f& color)
 	return &m_Color;
 }
 
+Vec2f BoidGroup::getAveragePosition() const
+{
+	Vec2f averagePosition(0.0f, 0.0f);
+
+	for (size_t i = 0; i < m_Boids.size(); i++)
+	{
+		averagePosition = averagePosition + m_Boids[i].getPosition();
+	}
+
+	if (!m_Boids.empty())
+	{
+		averagePosition = averagePosition / static_cast<float>(m_Boids.size());
+	}
+
+	return averagePosition;
+}
+
+Vec2f BoidGroup::getAverageVelocity() const
+{
+	Vec2f averageVelocity(0.0f, 0.0f);
+
+	for (size_t i = 0; i < m_Boids.size(); i++)
+	{
+		averageVelocity = averageVelocity + m_Boids[i].getVelocity();
+	}
+
+	if (!m_Boids.empty())
+	{
+		averageVelocity = averageVelocity / static_cast<float>(m_Boids.size());
+	}
+
+	return averageVelocity;
+}
+
 void BoidGroup::setCount(size_t count)
 {	
 	m_Countf = static_cast<float>(count);
