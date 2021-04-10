@@ -37,10 +37,11 @@ void init()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// models
 	BoidGroup::initModels();
-	Slider::initModels();
-	TextBox::initModels();
 	UserInterface::initModels();
 
 	boidSystem.setBoidBoundary(Boundary2f(0.0f, 0.0f, static_cast<float>(WIDTH), static_cast<float>(HEIGHT)));
@@ -78,7 +79,7 @@ void init()
 
 	Slider* slider;
 	const size_t sliderCount = 4;
-	Vec2f sliderPosition(0.0f, 0.0f);
+	Vec2f sliderPosition(0.0f, 16.0f);
 	Vec2f sliderOff(0.0f, 20.0f);
 	Vec2f sliderRanges[sliderCount] =
 	{
@@ -96,7 +97,7 @@ void init()
 	};
 
 	TextBox* textBox;
-	Vec2f textBoxPosition(420.0f, 0.0f);
+	Vec2f textBoxPosition(420.0f, 16.0f);
 	Vec2f textBoxOff(0.0f, 20.0f);
 
 	for (size_t i = 0; i < sliderCount; i++)

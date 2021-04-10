@@ -327,18 +327,224 @@ void TextBox::initModels()
 	glEndList();
 }
 
+GLuint SelectionBox::m_BoxList = 0;
+
+SelectionBox::SelectionBox()
+{
+	m_SelectionColor = Vec4f(0.0f, 0.0f, 0.2f, 0.3f);
+	m_SelectionBoundaryColor = Vec4f(0.0f, 0.0f, 0.2f, 0.7f);
+
+	m_StartedSelection = false;
+	m_Selected = false;
+}
+
+bool SelectionBox::isSelected()
+{
+	bool value = m_Selected;
+	m_Selected = false;
+
+	return value;
+}
+
+void SelectionBox::check(const Vec2f& mousePosition, int state)
+{
+	if (!m_StartedSelection && state == GLUT_DOWN)
+	{
+		m_StartedSelection = true;
+		m_Selected = false;
+
+		m_SelectionBoundary.min = mousePosition;
+		m_SelectionBoundary.max = mousePosition;
+	}
+
+	if (m_StartedSelection && state == GLUT_UP)
+	{
+		m_StartedSelection = false;
+		m_Selected = true;
+	}
+}
+
+void SelectionBox::update(const Vec2f& mousePosition)
+{
+	if (m_StartedSelection)
+	{
+		m_SelectionBoundary.max = mousePosition;
+	}
+}
+
+void SelectionBox::draw()
+{
+	if (!m_StartedSelection)
+	{
+		return;
+	}
+
+	Vec2f size = m_SelectionBoundary.max - m_SelectionBoundary.min;
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glTranslatef(m_SelectionBoundary.min.x, m_SelectionBoundary.min.y, 0.0f);
+	glScalef(size.x, size.y, 1.0f);
+	glColorVec4f(m_SelectionColor);
+	glCallList(m_BoxList);
+	
+	glColorVec4f(m_SelectionBoundaryColor);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glCallList(m_BoxList);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPopMatrix();
+}
+
+void SelectionBox::setDrawLists(GLuint drawList)
+{
+	m_BoxList = drawList;
+}
+
+void SelectionBox::initModels()
+{
+	m_BoxList = glGenLists(1);
+
+	glNewList(m_BoxList, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertexVec2f(Vec2f(0.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 1.0f));
+	glVertexVec2f(Vec2f(0.0f, 1.0f));
+	glEnd();
+	glEndList();
+}
+
+GLuint Button::m_BoxList = 0;
+Button::Button()
+{
+	m_Clicked = false;
+	m_ToggleMode = false;
+}
+
+Vec2f Button::getPosition() const
+{
+	return m_Boundary.min;
+}
+
+Vec2f Button::getSize() const
+{
+	return m_Boundary.max - m_Boundary.min;
+}
+
+void Button::setPosition(const Vec2f& position)
+{
+	m_Boundary.min = position;
+}
+
+void Button::setSize(const Vec2f& size)
+{
+	m_Boundary.max = m_Boundary.min + size;
+}
+
+void Button::setColor(const Vec4f& color)
+{
+	m_Color = color;
+}
+
+void Button::useAsToggle(bool value)
+{
+	m_ToggleMode = value;
+	m_Clicked = false;
+}
+
+bool Button::isClicked()
+{
+	bool value = m_Clicked;
+
+	if (!m_ToggleMode)
+	{
+		m_Clicked = false;
+	}
+
+	return value;
+}
+
+void Button::check(const Vec2f& mousePosition, int state)
+{
+	if (m_Boundary.contains(mousePosition) && state == GLUT_DOWN)
+	{
+		if (m_ToggleMode)
+		{
+			m_Clicked = !m_Clicked;
+		}
+		else if (!m_Clicked)
+		{
+			m_Clicked = true;
+		}
+	}
+
+	if (!m_ToggleMode && m_Clicked && state == GLUT_UP)
+	{
+		m_Clicked = false;
+	}
+}
+
+void Button::update(const Vec2f& mousePosition)
+{
+	
+}
+
+void Button::draw()
+{
+	Vec2f size = m_Boundary.max - m_Boundary.min;
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glTranslatef(m_Boundary.min.x, m_Boundary.min.y, 0.0f);
+	glScalef(size.x, size.y, 1.0f);
+	glColorVec4f(m_Color);
+	glCallList(m_BoxList);
+	glPopMatrix();
+}
+
+void Button::setDrawLists(GLuint boxList)
+{
+	m_BoxList = boxList;
+}
+
+void Button::initModels()
+{
+	m_BoxList = glGenLists(1);
+
+	glNewList(m_BoxList, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertexVec2f(Vec2f(0.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 0.0f));
+	glVertexVec2f(Vec2f(1.0f, 1.0f));
+	glVertexVec2f(Vec2f(0.0f, 1.0f));
+	glEnd();
+	glEndList();
+}
+
 GLuint UserInterface::m_PanelList = 0;
 
 UserInterface::UserInterface()
 {
 	m_MouseStatsPtr = nullptr;
 	m_ShouldResize = false;
+	m_Active = false;
+
+	m_CloseButton.setPosition(0.0f);
+	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
+	m_CloseButton.setColor(Vec4f(1.0f, 0.0f, 0.3f));
+	m_CloseButton.useAsToggle(false);
 }
 
 UserInterface::UserInterface(MouseStats* mouseStatsPtr)
 {
 	m_MouseStatsPtr = mouseStatsPtr;
 	m_ShouldResize = false;
+	m_Active = false;
+
+	m_CloseButton.setPosition(0.0f);
+	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
+	m_CloseButton.setColor(Vec4f(1.0f, 0.0f, 0.3f));
+	m_CloseButton.useAsToggle(false);
 }
 
 Vec2f UserInterface::getSize() const
@@ -371,6 +577,49 @@ void UserInterface::setPadding(const Vec2f& padding)
 void UserInterface::setColor(const Vec4f& color)
 {
 	m_Color = color;
+}
+
+void UserInterface::fitSize()
+{
+	Vec2f extent(0.0f, 0.0f);
+
+	for (size_t i = 0; i < m_Sliders.size(); i++)
+	{
+		if (m_Sliders[i].m_Position.x + m_Sliders[i].m_Size.x > extent.x - m_Padding.x)
+		{
+			extent.x = m_Sliders[i].m_Position.x + m_Sliders[i].m_Size.x;
+		}
+
+		if (m_Sliders[i].m_Position.y + m_Sliders[i].m_Size.y > extent.y - m_Padding.y)
+		{
+			extent.y = m_Sliders[i].m_Position.y + m_Sliders[i].m_Size.y;
+		}
+	}
+
+	for (size_t i = 0; i < m_TextBoxes.size(); i++)
+	{
+		if (m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f > extent.x - m_Padding.x)
+		{
+			extent.x = m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f;
+		}
+
+		if (m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f > extent.y - m_Padding.y)
+		{
+			extent.y = m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f;
+		}
+	}
+
+	if (extent.x > m_Size.x)
+	{
+		m_Size.x = extent.x;
+	}
+
+	if (extent.y > m_Size.y)
+	{
+		m_Size.y = extent.y;
+	}
+
+	m_ShouldResize = false;
 }
 
 Slider& UserInterface::addSlider()
@@ -415,9 +664,35 @@ void UserInterface::setBoidGroupStats(BoidGroup* boidGroup)
 	m_TextBoxes[3].setPrecision(0);
 }
 
+void UserInterface::setActive(bool value)
+{
+	m_Active = value;
+}
+
 void UserInterface::check()
 {
+	m_CloseButton.check(m_MouseStatsPtr->position - m_Position - Vec2f(m_Size.x + m_Padding.x * 2.0f - m_CloseButton.getSize().x, 0.0f),
+		m_MouseStatsPtr->leftState);
+
+	if (m_CloseButton.isClicked())
+	{
+		m_Active = false;
+		return;
+	}
+
 	if (!m_MouseStatsPtr)
+	{
+		return;
+	}
+
+	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState);
+
+	if (m_SelectionBox.isSelected())
+	{
+		m_Active = true;
+	}
+
+	if (!m_Active)
 	{
 		return;
 	}
@@ -430,47 +705,18 @@ void UserInterface::check()
 
 void UserInterface::update()
 {
-	if (true/*m_ShouldResize*/)
+	//m_CloseButton.update(m_MouseStatsPtr->position);
+
+	if (!m_MouseStatsPtr)
 	{
-		Vec2f extent(0.0f, 0.0f);
+		return;
+	}
 
-		for (size_t i = 0; i < m_Sliders.size(); i++)
-		{
-			if (m_Sliders[i].m_Position.x + m_Sliders[i].m_Size.x > extent.x - m_Padding.x)
-			{
-				extent.x = m_Sliders[i].m_Position.x + m_Sliders[i].m_Size.x;
-			}
+	m_SelectionBox.update(m_MouseStatsPtr->position);
 
-			if (m_Sliders[i].m_Position.y + m_Sliders[i].m_Size.y > extent.y - m_Padding.y)
-			{
-				extent.y = m_Sliders[i].m_Position.y + m_Sliders[i].m_Size.y;
-			}
-		}
-
-		for (size_t i = 0; i < m_TextBoxes.size(); i++)
-		{
-			if (m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f > extent.x - m_Padding.x)
-			{
-				extent.x = m_TextBoxes[i].m_Position.x + m_TextBoxes[i].m_Size.x + m_TextBoxes[i].m_Padding.x * 2.0f;
-			}
-
-			if (m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f > extent.y - m_Padding.y)
-			{
-				extent.y = m_TextBoxes[i].m_Position.y + m_TextBoxes[i].m_Size.y + m_TextBoxes[i].m_Padding.y * 2.0f;
-			}
-		}
-
-		if (extent.x > m_Size.x)
-		{
-			m_Size.x = extent.x;
-		}
-
-		if (extent.y > m_Size.y)
-		{
-			m_Size.y = extent.y;
-		}
-
-		m_ShouldResize = false;
+	if (!m_Active)
+	{
+		return;
 	}
 
 	bool value = false;
@@ -480,7 +726,12 @@ void UserInterface::update()
 
 		value |= m_TextBoxes[i].m_AutoSize;
 	}
-	m_ShouldResize = value;
+	m_ShouldResize |= value;
+
+	if (m_ShouldResize)
+	{
+		fitSize();
+	}
 
 	if (!m_MouseStatsPtr)
 	{
@@ -495,6 +746,13 @@ void UserInterface::update()
 
 void UserInterface::draw()
 {
+	m_SelectionBox.draw();
+
+	if (!m_Active)
+	{
+		return;
+	}
+
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glTranslatef(m_Position.x, m_Position.y, 0.0f);
@@ -502,6 +760,11 @@ void UserInterface::draw()
 	glScalef(m_Size.x + m_Padding.x * 2.0f, m_Size.y + m_Padding.y * 2.0f, 1.0f);
 	glColorVec4f(m_Color);
 	glCallList(m_PanelList);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(m_Size.x + m_Padding.x * 2.0f - m_CloseButton.getSize().x, 0.0f, 0.0f);
+	m_CloseButton.draw();
 	glPopMatrix();
 
 	glTranslatef(m_Padding.x, m_Padding.y, 0.0f);
@@ -536,4 +799,9 @@ void UserInterface::initModels()
 	glVertexVec2f(Vec2f(0.0f, 1.0f));
 	glEnd();
 	glEndList();
+
+	Slider::initModels();
+	TextBox::initModels();
+	SelectionBox::initModels();
+	Button::initModels();
 }

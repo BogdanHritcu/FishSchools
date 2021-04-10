@@ -114,6 +114,8 @@ public:
 	BoidGroup& addGroup();
 	BoidGroup& addGroup(size_t count);
 
+	void check(const MouseStats& mouseStats);
+
 	void update(float dt);
 
 	void draw() const;

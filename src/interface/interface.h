@@ -104,6 +104,72 @@ private:
 	friend class UserInterface;
 };
 
+class SelectionBox
+{
+public:
+	SelectionBox();
+
+	bool isSelected();
+
+	void check(const Vec2f& mousePosition, int state);
+
+	void update(const Vec2f& mousePosition);
+
+	void draw();
+
+	static void setDrawLists(GLuint boxList);
+	static void initModels();
+
+private:
+	Boundary2f m_SelectionBoundary;
+	Vec4f m_SelectionColor;
+	Vec4f m_SelectionBoundaryColor;
+
+	bool m_StartedSelection;
+	bool m_Selected;
+
+	static GLuint m_BoxList;
+
+	friend class UserInterface;
+};
+
+class Button
+{
+public:
+	Button();
+
+	Vec2f getPosition() const;
+	Vec2f getSize() const;
+
+	void setPosition(const Vec2f& position);
+	void setSize(const Vec2f& size);
+	void setColor(const Vec4f& color);
+
+	void useAsToggle(bool value);
+
+	bool isClicked();
+
+	void check(const Vec2f& mousePosition, int state);
+
+	void update(const Vec2f& mousePosition);
+
+	void draw();
+
+	static void setDrawLists(GLuint boxList);
+	static void initModels();
+
+private:
+	Boundary2f m_Boundary;
+	Vec4f m_Color;
+
+	bool m_ToggleMode;
+	bool m_Clicked;
+
+	static GLuint m_BoxList;
+
+	friend class UserInterface;
+};
+
 class UserInterface
 {
 public:
@@ -118,6 +184,7 @@ public:
 	void setPosition(const Vec2f& position);
 	void setPadding(const Vec2f& padding);
 	void setColor(const Vec4f& color);
+	void fitSize();
 	
 	Slider& addSlider();
 	TextBox& addTextBox();
@@ -125,6 +192,8 @@ public:
 	void setMouseStatsPtr(MouseStats* mouseStatsPtr);
 
 	void setBoidGroupStats(BoidGroup* boidGroup);
+	
+	void setActive(bool value);
 
 	void check();
 
@@ -139,16 +208,19 @@ public:
 private:
 	std::vector<Slider> m_Sliders;
 	std::vector<TextBox> m_TextBoxes;
+	SelectionBox m_SelectionBox;
+	Button m_CloseButton;
 
 	Vec2f m_Position;
 	Vec2f m_Size;
 
 	Vec2f m_Padding;
-	Vec2f m_Color;
+	Vec4f m_Color;
+
+	bool m_ShouldResize;
+	bool m_Active;
 
 	MouseStats* m_MouseStatsPtr;
 
 	static GLuint m_PanelList;
-	
-	bool m_ShouldResize;
 };

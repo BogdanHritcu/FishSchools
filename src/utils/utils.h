@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <GL/freeglut.h>
+#include <cmath>
 
 #define M_PI 3.14159265358979
 
@@ -72,6 +73,8 @@ struct Boundary2f
 	Boundary2f(const Vec2f& min, const Vec2f& max);
 	Boundary2f(float minx, float miny, float maxx, float maxy);
 	
+	Vec2f getSize() const;
+
 	bool contains(const Vec2f& point);
 	bool contains(float x, float y);
 };

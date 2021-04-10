@@ -219,9 +219,29 @@ Boundary2f::Boundary2f(float minx, float miny, float maxx, float maxy)
 	max.y = maxy;
 }
 
+Vec2f Boundary2f::getSize() const
+{
+	return Vec2f(std::fabsf(max.x - min.x), std::fabsf(max.y - min.y));
+}
+
 bool Boundary2f::contains(const Vec2f& point)
 {
-	return ((min.x <= point.x) && (max.x >= point.x) && (min.y <= point.y) && (max.y >= point.y));
+	Vec2f minaux = min;
+	Vec2f maxaux = max;
+
+	if (minaux.x > maxaux.x)
+	{
+		minaux.x = max.x;
+		maxaux.x = min.x;
+	}
+
+	if (minaux.y > maxaux.y)
+	{
+		minaux.y = max.y;
+		maxaux.y = min.y;
+	}
+
+	return ((minaux.x <= point.x) && (maxaux.x >= point.x) && (minaux.y <= point.y) && (maxaux.y >= point.y));
 }
 
 bool Boundary2f::contains(float x, float y)
