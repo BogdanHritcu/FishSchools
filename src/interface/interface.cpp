@@ -234,6 +234,11 @@ void TextBox::setPrecision(std::streamsize precision)
 	m_Precision = precision;
 }
 
+void TextBox::setText(const std::string& string)
+{
+	m_Text = string;
+}
+
 void TextBox::setValueRef(std::string* textPtr)
 {
 	m_TextPtr = textPtr;
@@ -346,9 +351,10 @@ bool SelectionBox::isSelected()
 	return value;
 }
 
-void SelectionBox::check(const Vec2f& mousePosition, int state)
-{
-	if (!m_StartedSelection && state == GLUT_DOWN)
+void SelectionBox::check(const Vec2f& mousePosition, int state, const Boundary2f& boundary)
+{	
+	
+	if (!m_StartedSelection && state == GLUT_DOWN && !boundary.contains(mousePosition))
 	{
 		m_StartedSelection = true;
 		m_Selected = false;
@@ -529,6 +535,7 @@ UserInterface::UserInterface()
 	m_ShouldResize = false;
 	m_Active = false;
 	m_BoidSystemPtr = nullptr;
+	m_PreviewBoidPtr = nullptr;
 
 	m_CloseButton.setPosition(0.0f);
 	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
@@ -542,6 +549,7 @@ UserInterface::UserInterface(MouseStats* mouseStatsPtr)
 	m_ShouldResize = false;
 	m_Active = false;
 	m_BoidSystemPtr = nullptr;
+	m_PreviewBoidPtr = nullptr;
 
 	m_CloseButton.setPosition(0.0f);
 	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
@@ -647,23 +655,88 @@ void UserInterface::setMouseStatsPtr(MouseStats* mouseStatsPtr)
 
 void UserInterface::setBoidGroupStats(BoidGroup* boidGroup)
 {
-	m_Sliders[0].setPercentFromValue(*boidGroup->getBoidCohesion());
-	m_Sliders[0].setValueRef(boidGroup->getBoidCohesion());
+	size_t k = 0;
+	m_PreviewBoidPtr = boidGroup;
 
-	m_Sliders[1].setPercentFromValue(*boidGroup->getBoidSeparation());
-	m_Sliders[1].setValueRef(boidGroup->getBoidSeparation());
+	//cohesion
+	m_Sliders[k].setPercentFromValue(*boidGroup->getBoidCohesion());
+	m_Sliders[k].setValueRef(boidGroup->getBoidCohesion());
 
-	m_Sliders[2].setPercentFromValue(*boidGroup->getBoidAlignment());
-	m_Sliders[2].setValueRef(boidGroup->getBoidAlignment());
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(boidGroup->getBoidCohesion());
+	k++; 
 
-	m_Sliders[3].setPercentFromValue(*boidGroup->getCount());
-	m_Sliders[3].setValueRef(boidGroup->getCount());
-	
-	m_TextBoxes[0].setValueRef(boidGroup->getBoidCohesion());
-	m_TextBoxes[1].setValueRef(boidGroup->getBoidSeparation());
-	m_TextBoxes[2].setValueRef(boidGroup->getBoidAlignment());
-	m_TextBoxes[3].setValueRef(boidGroup->getCount());
-	m_TextBoxes[3].setPrecision(0);
+	//separation
+	m_Sliders[k].setPercentFromValue(*boidGroup->getBoidSeparation());
+	m_Sliders[k].setValueRef(boidGroup->getBoidSeparation());
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(boidGroup->getBoidSeparation());
+	k++;
+
+	//alignment
+	m_Sliders[k].setPercentFromValue(*boidGroup->getBoidAlignment());
+	m_Sliders[k].setValueRef(boidGroup->getBoidAlignment());
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(boidGroup->getBoidAlignment());
+	k++;
+
+	//friendliness
+	m_Sliders[k].setPercentFromValue(*boidGroup->getFriendliness());
+	m_Sliders[k].setValueRef(boidGroup->getFriendliness());
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(boidGroup->getFriendliness());
+	k++;
+
+	//size.x
+	m_Sliders[k].setPercentFromValue(boidGroup->getBoidSize().x);
+	m_Sliders[k].setValueRef(&boidGroup->getBoidSize().x);
+
+	m_TextBoxes[k].setPrecision(1);
+	m_TextBoxes[k].setValueRef(&boidGroup->getBoidSize().x);
+	k++;
+
+	//size.y
+	m_Sliders[k].setPercentFromValue(boidGroup->getBoidSize().y);
+	m_Sliders[k].setValueRef(&boidGroup->getBoidSize().y);
+
+	m_TextBoxes[k].setPrecision(1);
+	m_TextBoxes[k].setValueRef(&boidGroup->getBoidSize().y);
+	k++;
+
+	//count
+	m_Sliders[k].setPercentFromValue(*boidGroup->getCount());
+	m_Sliders[k].setValueRef(boidGroup->getCount());
+
+	m_TextBoxes[k].setPrecision(0);
+	m_TextBoxes[k].setValueRef(boidGroup->getCount());
+	k++;
+
+	//R
+	m_Sliders[k].setPercentFromValue(boidGroup->getBoidColor().x);
+	m_Sliders[k].setValueRef(&boidGroup->getBoidColor().x);
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(&boidGroup->getBoidColor().x);
+	k++;
+
+	//G
+	m_Sliders[k].setPercentFromValue(boidGroup->getBoidColor().y);
+	m_Sliders[k].setValueRef(&boidGroup->getBoidColor().y);
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(&boidGroup->getBoidColor().y);
+	k++;
+
+	//B
+	m_Sliders[k].setPercentFromValue(boidGroup->getBoidColor().z);
+	m_Sliders[k].setValueRef(&boidGroup->getBoidColor().z);
+
+	m_TextBoxes[k].setPrecision(2);
+	m_TextBoxes[k].setValueRef(&boidGroup->getBoidColor().z);
+	k++;
 }
 
 void UserInterface::setActive(bool value)
@@ -687,7 +760,7 @@ void UserInterface::check()
 		return;
 	}
 
-	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState);
+	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState, Boundary2f(m_Position, m_Size + m_Padding * 2.0f));
 
 	if (m_SelectionBox.isSelected() && m_BoidSystemPtr)
 	{	
@@ -795,6 +868,24 @@ void UserInterface::draw()
 
 	glTranslatef(m_Padding.x, m_Padding.y, 0.0f);
 
+	if (m_PreviewBoidPtr)
+	{
+		Boid& boid = m_PreviewBoidPtr->getBoids()[0];
+		Vec2f boidPosition = boid.getPosition();
+		boid.setPosition(Vec2f(0.0f, 0.0f));
+		
+		glPushMatrix();
+
+		glTranslatef(430.0f, 340.0f, 0.0f);
+		glScalef(3.0f, 3.0f, 1.0f);
+		boid.draw(m_PreviewBoidPtr->getBoidModel(), m_PreviewBoidPtr->getBoidSize(), m_PreviewBoidPtr->getBoidColor());
+		boid.setPosition(boidPosition);
+
+		glPopMatrix();
+	}
+	
+
+	
 	for (size_t i = 0; i < m_TextBoxes.size(); i++)
 	{
 		m_TextBoxes[i].draw();

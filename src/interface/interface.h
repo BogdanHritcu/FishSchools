@@ -69,6 +69,7 @@ public:
 	void setFont(void* font);
 	void setAutoSize(bool value);
 	void setPrecision(std::streamsize precision);
+	void setText(const std::string& string);
 
 	void setValueRef(std::string* textPtr);
 	void setValueRef(float* valuePtr);
@@ -111,7 +112,7 @@ public:
 
 	bool isSelected();
 
-	void check(const Vec2f& mousePosition, int state);
+	void check(const Vec2f& mousePosition, int state, const Boundary2f& boundary);
 
 	void update(const Vec2f& mousePosition);
 
@@ -226,4 +227,6 @@ private:
 	static GLuint m_PanelList;
 
 	BoidSystem* m_BoidSystemPtr;
+
+	BoidGroup* m_PreviewBoidPtr;
 };

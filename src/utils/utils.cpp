@@ -224,7 +224,7 @@ Vec2f Boundary2f::getSize() const
 	return Vec2f(std::fabsf(max.x - min.x), std::fabsf(max.y - min.y));
 }
 
-bool Boundary2f::contains(const Vec2f& point)
+bool Boundary2f::contains(const Vec2f& point) const
 {
 	Vec2f minaux = min;
 	Vec2f maxaux = max;
@@ -244,7 +244,7 @@ bool Boundary2f::contains(const Vec2f& point)
 	return ((minaux.x <= point.x) && (maxaux.x >= point.x) && (minaux.y <= point.y) && (maxaux.y >= point.y));
 }
 
-bool Boundary2f::contains(float x, float y)
+bool Boundary2f::contains(float x, float y) const
 {
 	return contains(Vec2f(x, y));
 }

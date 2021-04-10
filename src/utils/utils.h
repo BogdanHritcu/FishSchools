@@ -75,8 +75,8 @@ struct Boundary2f
 	
 	Vec2f getSize() const;
 
-	bool contains(const Vec2f& point);
-	bool contains(float x, float y);
+	bool contains(const Vec2f& point) const;
+	bool contains(float x, float y) const;
 };
 
 struct CircleBoundary2f

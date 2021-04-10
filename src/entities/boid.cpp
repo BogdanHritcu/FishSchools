@@ -128,7 +128,7 @@ void Boid::update(float dt)
 	m_Position = m_Position + m_Velocity * dt;
 }
 
-void Boid::draw(GLuint modelList, const Vec2f& size) const
+void Boid::draw(GLuint modelList, const Vec2f& size, const Vec4f& color) const
 {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -136,6 +136,7 @@ void Boid::draw(GLuint modelList, const Vec2f& size) const
 	glTranslatef(m_Position.x, m_Position.y, 0.0f);
 	glRotatef(getAngle(), 0.0f, 0.0f, -1.0f);
 	glScalef(size.x, size.y, 1.0f);
+	glColorVec4f(color);
 
 	glCallList(modelList);
 
@@ -189,9 +190,9 @@ float* BoidGroup::getCount()
 	return &m_Countf;
 }
 
-Vec2f* BoidGroup::getBoidSize()
+Vec2f& BoidGroup::getBoidSize()
 {
-	return &m_Size;
+	return m_Size;
 }
 
 float* BoidGroup::getBoidCohesion()
@@ -229,9 +230,14 @@ float* BoidGroup::getBoidMaxSpeed()
 	return &m_MaxSpeed;
 }
 
-Vec4f* BoidGroup::getBoidColor(const Vec4f& color)
+Vec4f& BoidGroup::getBoidColor()
 {
-	return &m_Color;
+	return m_Color;
+}
+
+GLuint BoidGroup::getBoidModel()
+{
+	return m_ModelList;
 }
 
 Vec2f BoidGroup::getAveragePosition() const
@@ -377,12 +383,10 @@ void BoidGroup::update(float dt, BoidSystem& boidSystem)
 }
 
 void BoidGroup::draw() const
-{
-	glColorVec4f(m_Color);
-	
+{	
 	for (size_t i = 0; i < m_Boids.size(); i++)
 	{
-		m_Boids[i].draw(m_ModelList, m_Size);
+		m_Boids[i].draw(m_ModelList, m_Size, m_Color);
 	}
 }
 

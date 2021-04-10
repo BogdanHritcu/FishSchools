@@ -23,7 +23,7 @@ public:
 
 	void update(float dt);
 
-	void draw(GLuint modelList, const Vec2f& size) const;
+	void draw(GLuint modelList, const Vec2f& size, const Vec4f& color) const;
 
 private:
 	Vec2f m_Position;
@@ -38,7 +38,7 @@ public:
 	BoidGroup();
 	BoidGroup(size_t count, const Boundary2f& bounds);
 
-	Vec2f* getBoidSize();
+	Vec2f& getBoidSize();
 	float* getCount();
 	float* getBoidCohesion();
 	float* getBoidSeparation();
@@ -47,8 +47,9 @@ public:
 	float* getBoidViewDistance();
 	float* getBoidMinSeparationDistance();
 	float* getBoidMaxSpeed();
+	GLuint getBoidModel();
 	
-	Vec4f* getBoidColor(const Vec4f& color);
+	Vec4f& getBoidColor();
 
 	Vec2f getAveragePosition() const;
 	Vec2f getAverageVelocity() const;
