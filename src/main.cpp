@@ -76,6 +76,7 @@ void init()
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
 	userInterface.setPadding(Vec2f(10.0f, 10.0f));
 	userInterface.setColor(Vec4f(0.4f, 0.1f, 0.7f));
+	userInterface.setBoidSystemRef(boidSystem);
 
 	Slider* slider;
 	const size_t sliderCount = 4;
@@ -124,7 +125,6 @@ void init()
 		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
 	}
 
-	userInterface.setBoidGroupStats(&boidSystem.getGroup(0));
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;

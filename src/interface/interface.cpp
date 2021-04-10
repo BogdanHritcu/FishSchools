@@ -647,17 +647,17 @@ void UserInterface::setMouseStatsPtr(MouseStats* mouseStatsPtr)
 
 void UserInterface::setBoidGroupStats(BoidGroup* boidGroup)
 {
-	m_Sliders[0].setValueRef(boidGroup->getBoidCohesion());
 	m_Sliders[0].setPercentFromValue(*boidGroup->getBoidCohesion());
+	m_Sliders[0].setValueRef(boidGroup->getBoidCohesion());
 
-	m_Sliders[1].setValueRef(boidGroup->getBoidSeparation());
 	m_Sliders[1].setPercentFromValue(*boidGroup->getBoidSeparation());
+	m_Sliders[1].setValueRef(boidGroup->getBoidSeparation());
 
-	m_Sliders[2].setValueRef(boidGroup->getBoidAlignment());
 	m_Sliders[2].setPercentFromValue(*boidGroup->getBoidAlignment());
+	m_Sliders[2].setValueRef(boidGroup->getBoidAlignment());
 
-	m_Sliders[3].setValueRef(boidGroup->getCount());
 	m_Sliders[3].setPercentFromValue(*boidGroup->getCount());
+	m_Sliders[3].setValueRef(boidGroup->getCount());
 	
 	m_TextBoxes[0].setValueRef(boidGroup->getBoidCohesion());
 	m_TextBoxes[1].setValueRef(boidGroup->getBoidSeparation());
