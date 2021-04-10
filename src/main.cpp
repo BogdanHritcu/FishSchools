@@ -11,8 +11,8 @@
 #include "entities/boid.h"
 #include "interface/interface.h"
 
-int WIDTH = 1200;
-int HEIGHT = 700;
+int WIDTH = 1920;
+int HEIGHT = 1080;
 MouseStats mouseStats;
 
 float old_time;
@@ -288,6 +288,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(WIDTH, HEIGHT);
 	glutCreateWindow("Schools Of Fish");
 	init();
+	//glutFullScreen();
 
 	// mouse callbacks
 	glutMouseFunc(click_callback);
