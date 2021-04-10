@@ -365,6 +365,11 @@ void glVertexVec4f(const Vec4f& vec)
 	glVertex4f(vec.x, vec.y, vec.z, vec.w);
 }
 
+Vec4f color256to1(const Vec4f& color)
+{
+	return color / 255.0f;
+}
+
 BoidGroupStats::BoidGroupStats()
 {
 	boidSize = Vec2f(0.0f, 0.0f);

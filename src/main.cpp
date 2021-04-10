@@ -27,7 +27,9 @@ void init()
 {
 	srand((unsigned int)time(nullptr));
 
-	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+	Vec4f clearColor = color256to1(Vec4f(150, 158, 224));
+
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0f);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -75,7 +77,8 @@ void init()
 	//UI
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
 	userInterface.setPadding(Vec2f(10.0f, 10.0f));
-	userInterface.setColor(Vec4f(0.4f, 0.1f, 0.7f));
+	userInterface.setColor(Vec4f(0.4f, 0.3f, 0.4f));
+	//0.2f, 0.2f, 0.2f, 0.0f
 	userInterface.setBoidSystemRef(boidSystem);
 
 	Slider* slider;
@@ -129,7 +132,8 @@ void init()
 		slider->setPercent(sliderPercents[i]);
 		slider->setRange(sliderRanges[i].x, sliderRanges[i].y);
 
-		slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+		//slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
+		slider->setSliderColor(color256to1(Vec4f(208, 211, 143)));
 		slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
 		slider->setSize(sliderSize);
 		slider->setButtonDiameterPercent(1.5f);
@@ -141,15 +145,23 @@ void init()
 		textBox->setSize(textValueSize);
 		textBox->setAutoSize(false);
 		textBox->setPadding(Vec2f(6.0f, 6.0f));
-		textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+		textBox->setBoxColor(color256to1(Vec4f(208, 211, 143)));
+		textBox->setTextColor(Vec4f(0.2f, 0.2f, 0.2f));
 	}
 
 	Vec2f textLabelSizeCopy = Vec2f(8.0f, 14.0f);
 	Vec2f sliderPositionCopy = textLabelPosition + Vec2f(textLabelSizeCopy.x, 0.0f) + Vec2f(20.0f, 0.0f);
 	Vec2f sliderSizeCopy = Vec2f(200.0f, 10.0f);
 	textValuePosition = sliderPositionCopy + Vec2f(sliderSizeCopy.x, 0.0f) + Vec2f(10.0f, 0.0f);
-	for (size_t i = sliderCount - 3; i < sliderCount; i++)
+	Vec4f colors[3] =
+	{
+		Vec4f(0.8f, 0.2f, 0.1f),
+		Vec4f(0.1f, 0.8f, 0.2f),
+		Vec4f(0.2f, 0.1f, 0.8f)
+	};
+	size_t k = 0;
+
+	for (size_t i = sliderCount - 3; i < sliderCount; i++, k++)
 	{
 		// sliders
 		slider = &userInterface.addSlider();
@@ -157,8 +169,8 @@ void init()
 		slider->setPercent(sliderPercents[i]);
 		slider->setRange(sliderRanges[i].x, sliderRanges[i].y);
 
-		slider->setSliderColor(Vec4f(0.1f, 0.3f, 0.5f));
-		slider->setButtonColor(Vec4f(0.8f, 0.1f, 0.2f));
+		slider->setSliderColor(color256to1(Vec4f(208, 211, 143)));
+		slider->setButtonColor(colors[k]);
 		slider->setSize(sliderSizeCopy);
 		slider->setButtonDiameterPercent(1.5f);
 
@@ -170,7 +182,8 @@ void init()
 		textBox->setAutoSize(false);
 		textBox->setPadding(Vec2f(6.0f, 6.0f));
 		textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+		textBox->setBoxColor(color256to1(Vec4f(208, 211, 143)));
+		textBox->setTextColor(Vec4f(0.2f, 0.2f, 0.2f));
 	}
 
 	std::string propertiesName[sliderCount] = { "Cohesion", "Separation", "Alignment", "Friendliness", "Width", "Height", "Count", "R", "G", "B" };
@@ -184,8 +197,8 @@ void init()
 		textBox->setSize(textLabelSize);
 		textBox->setAutoSize(false);
 		textBox->setPadding(Vec2f(6.0f, 6.0f));
-		textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+		textBox->setBoxColor(color256to1(Vec4f(208, 211, 143)));
+		textBox->setTextColor(Vec4f(0.2f, 0.2f, 0.2f));
 	}
 
 
@@ -199,11 +212,9 @@ void init()
 		textBox->setSize(textLabelSizeCopy);
 		textBox->setAutoSize(false);
 		textBox->setPadding(Vec2f(6.0f, 6.0f));
-		textBox->setBoxColor(Vec4f(0.1f, 0.3f, 0.5f));
-		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
+		textBox->setBoxColor(color256to1(Vec4f(208, 211, 143)));
+		textBox->setTextColor(Vec4f(0.2f, 0.2f, 0.2f));
 	}
-
-
 
 
 	////////////////////////////////////////////////////

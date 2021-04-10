@@ -139,6 +139,8 @@ void glColorVec4f(const Vec4f& color);
 void glVertexVec2f(const Vec2f& vec);
 void glVertexVec4f(const Vec4f& vec);
 
+Vec4f color256to1(const Vec4f& color);
+
 template <typename T>
 std::string to_stringn(const T value, std::streamsize precision)
 {
