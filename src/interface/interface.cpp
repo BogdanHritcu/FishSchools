@@ -167,7 +167,7 @@ void Slider::initModels()
 	glBegin(GL_POLYGON);
 	for (size_t i = 0; i < pointCount; i++)
 	{
-		float angle = 2 * M_PI * i / pointCount;
+		float angle = 2.0f * static_cast<float>(M_PI * i) / static_cast<float>(pointCount);
 		glVertex2f(cosf(angle), sinf(angle));
 	}
 	glEnd();

@@ -103,6 +103,8 @@ struct MouseStats
 
 struct BoidGroupStats
 {
+	BoidGroupStats();
+
 	Vec2f boidSize;
 
 	float cohesion;   //[0, 1]
@@ -112,11 +114,8 @@ struct BoidGroupStats
 	float viewDistance;
 	float minSeparationDistance;
 	float maxSpeed;
-	Vec2f boundaryRepel;
-	Boundary2f boundary;
 
 	Vec4f color;
-	GLuint modelList;
 
 	size_t count;
 };

@@ -344,3 +344,16 @@ void glVertexVec4f(const Vec4f& vec)
 {
 	glVertex4f(vec.x, vec.y, vec.z, vec.w);
 }
+
+BoidGroupStats::BoidGroupStats()
+{
+	boidSize = Vec2f(0.0f, 0.0f);
+	cohesion = 0.0f;
+	separation = 0.0f;
+	alignment = 0.0f;
+	viewDistance = 0.0f;
+	minSeparationDistance = 0.0f;
+	maxSpeed = 0.0f;
+	color = Vec4f(0.0f, 0.0f, 0.0f);
+	count = 0;
+}

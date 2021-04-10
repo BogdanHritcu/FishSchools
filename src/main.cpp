@@ -19,7 +19,7 @@ float old_time;
 float current_time;
 float delta_time;
 
-std::vector<BoidGroup> boidGroups;
+BoidSystem boidSystem;
 
 UserInterface userInterface(&mouseStats);
 
@@ -43,19 +43,33 @@ void init()
 	TextBox::initModels();
 	UserInterface::initModels();
 
-	BoidGroup boidGroup(50, Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-	boidGroup.setBoidSize(Vec2f(15.0f, 5.0f));
-	boidGroup.setBoidViewDistance(60.0f);
-	boidGroup.setBoidMinSeparationDistance(15.0f);
-	boidGroup.setBoidMaxSpeed(100.0f);
-	boidGroup.setBoidBoundaryRepel(Vec2f(5.0f, 5.0f));
-	boidGroup.setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
+	boidSystem.setBoidBoundary(Boundary2f(0.0f, 0.0f, static_cast<float>(WIDTH), static_cast<float>(HEIGHT)));
+	boidSystem.setBoidBoundaryRepel(Vec2f(15.0f, 15.0f));
 
-	boidGroups.push_back(boidGroup);
+	BoidGroup* boidGroup;
+	boidGroup = &boidSystem.addGroup(50);
+	boidGroup->setBoidSize(Vec2f(15.0f, 5.0f));
+	boidGroup->setBoidFriendliness(0.0f);
+	boidGroup->setBoidViewDistance(60.0f);
+	boidGroup->setBoidMinSeparationDistance(15.0f);
+	boidGroup->setBoidMaxSpeed(100.0f);
+	boidGroup->setBoidColor(Vec4f(0.0f, 1.0f, 0.0f));
 
-	boidGroup.setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
+	boidGroup = &boidSystem.addGroup(300);
+	boidGroup->setBoidSize(Vec2f(15.0f, 5.0f));
+	boidGroup->setBoidFriendliness(0.1f);
+	boidGroup->setBoidViewDistance(60.0f);
+	boidGroup->setBoidMinSeparationDistance(15.0f);
+	boidGroup->setBoidMaxSpeed(100.0f);
+	boidGroup->setBoidColor(Vec4f(0.0f, 0.0f, 1.0f));
 
-	boidGroups.push_back(boidGroup);
+	boidGroup = &boidSystem.addGroup(300);
+	boidGroup->setBoidSize(Vec2f(15.0f, 5.0f));
+	boidGroup->setBoidFriendliness(0.1f);
+	boidGroup->setBoidViewDistance(60.0f);
+	boidGroup->setBoidMinSeparationDistance(15.0f);
+	boidGroup->setBoidMaxSpeed(100.0f);
+	boidGroup->setBoidColor(Vec4f(1.0f, 0.0f, 0.0f));
 
 	//UI
 	userInterface.setPosition(Vec2f(10.0f, 10.0f));
@@ -89,7 +103,7 @@ void init()
 	{
 		// sliders
 		slider = &userInterface.addSlider();
-		slider->setPosition(sliderPosition + sliderOff * i);
+		slider->setPosition(sliderPosition + sliderOff * static_cast<float>(i));
 		slider->setPercent(sliderPercents[i]);
 		slider->setRange(sliderRanges[i].x, sliderRanges[i].y);
 
@@ -100,7 +114,7 @@ void init()
 
 		// value text boxes
 		textBox = &userInterface.addTextBox();
-		textBox->setPosition(textBoxPosition + textBoxOff * i);
+		textBox->setPosition(textBoxPosition + textBoxOff * static_cast<float>(i));
 
 		textBox->setSize(Vec2f(40.0f, 14.0f));
 		textBox->setAutoSize(false);
@@ -109,7 +123,7 @@ void init()
 		textBox->setTextColor(Vec4f(1.0f, 1.0f, 0.8f));
 	}
 
-	userInterface.setBoidGroupStats(&boidGroups[0]);
+	userInterface.setBoidGroupStats(&boidSystem.getGroup(0));
 	////////////////////////////////////////////////////
 	
 	old_time = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -120,10 +134,7 @@ void draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	for (size_t i = 0; i < boidGroups.size(); i++)
-	{
-		boidGroups[i].draw();
-	}
+	boidSystem.draw();
 
 	userInterface.draw();
 
@@ -139,10 +150,7 @@ void idle()
 	//printf("fps: %.2f\n", 1.0f / delta_time);
 	userInterface.update();
 
-	for (size_t i = 0; i < boidGroups.size(); i++)
-	{
-		boidGroups[i].update(delta_time);
-	}
+	boidSystem.update(delta_time);
 
 	glutPostRedisplay();
 }
@@ -174,10 +182,7 @@ void resize_callback(int width, int height)
 	glLoadIdentity();
 	glOrtho(0.0, WIDTH, HEIGHT, 0.0, -1.0, 1.0);
 
-	for (size_t i = 0; i < boidGroups.size(); i++)
-	{
-		boidGroups[i].setBoidBoundary(Boundary2f(0.0f, 0.0f, WIDTH, HEIGHT));
-	}
+	boidSystem.setBoidBoundary(Boundary2f(Vec2f(0.0f, 0.0f), Vec2f(static_cast<float>(width), static_cast<float>(height))));
 	
 }
 
