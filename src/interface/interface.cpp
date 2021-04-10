@@ -528,6 +528,7 @@ UserInterface::UserInterface()
 	m_MouseStatsPtr = nullptr;
 	m_ShouldResize = false;
 	m_Active = false;
+	m_BoidSystemPtr = nullptr;
 
 	m_CloseButton.setPosition(0.0f);
 	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
@@ -540,6 +541,7 @@ UserInterface::UserInterface(MouseStats* mouseStatsPtr)
 	m_MouseStatsPtr = mouseStatsPtr;
 	m_ShouldResize = false;
 	m_Active = false;
+	m_BoidSystemPtr = nullptr;
 
 	m_CloseButton.setPosition(0.0f);
 	m_CloseButton.setSize(Vec2f(16.0f, 16.0f));
@@ -687,9 +689,33 @@ void UserInterface::check()
 
 	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState);
 
-	if (m_SelectionBox.isSelected())
-	{
-		m_Active = true;
+	if (m_SelectionBox.isSelected() && m_BoidSystemPtr)
+	{	
+		std::vector <BoidGroup>& boidGroups = m_BoidSystemPtr->getGroups();
+		size_t index = 0, count = 0, max = 0;
+		for (size_t i = 0; i < boidGroups.size(); i++)
+		{
+			count = 0;
+			std::vector <Boid>& boids = boidGroups[i].getBoids();
+			for (size_t j = 0; j < boids.size(); j++)
+			{
+				if (m_SelectionBox.m_SelectionBoundary.contains(boids[j].getPosition()))
+				{
+					count++;
+				}
+			}
+			if (count > max)
+			{
+				max = count;
+				index = i;
+			}
+		}
+
+		if (max)
+		{
+			m_Active = true;
+			setBoidGroupStats(&m_BoidSystemPtr->getGroup(index));
+		}
 	}
 
 	if (!m_Active)
@@ -804,4 +830,9 @@ void UserInterface::initModels()
 	TextBox::initModels();
 	SelectionBox::initModels();
 	Button::initModels();
+}
+
+void UserInterface::setBoidSystemRef(BoidSystem& boidSystem)
+{
+	m_BoidSystemPtr = &boidSystem;
 }

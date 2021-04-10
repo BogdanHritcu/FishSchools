@@ -554,3 +554,8 @@ std::vector<Boid*>& BoidSystem::getNearStrangerBoids()
 {
 	return m_NearStrangerBoids;
 }
+
+std::vector<BoidGroup>& BoidSystem::getGroups()
+{
+	return m_BoidGroups;
+}

@@ -106,6 +106,7 @@ public:
 	Boundary2f* getBoidBoundary();
 	Vec2f* getBoidBoundaryRepel();
 	BoidGroup& getGroup(size_t index);
+	std::vector<BoidGroup>& getGroups();
 
 	void setCount(size_t count);
 	void setBoidBoundary(const Boundary2f& bounds);

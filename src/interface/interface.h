@@ -204,6 +204,7 @@ public:
 	static void setDrawLists(GLuint panelList);
 	static void initModels();
 
+	void setBoidSystemRef(BoidSystem& boidSystem);
 
 private:
 	std::vector<Slider> m_Sliders;
@@ -223,4 +224,6 @@ private:
 	MouseStats* m_MouseStatsPtr;
 
 	static GLuint m_PanelList;
+
+	BoidSystem* m_BoidSystemPtr;
 };
