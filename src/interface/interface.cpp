@@ -760,7 +760,14 @@ void UserInterface::check()
 		return;
 	}
 
-	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState, Boundary2f(m_Position, m_Size + m_Padding * 2.0f));
+	Boundary2f panelBoundary(m_Position, m_Size + m_Padding * 2.0f);
+
+	if (!m_Active)
+	{
+		panelBoundary = Boundary2f(0.0f, 0.0f, 0.0f, 0.0f); //TODO: can't start a selection box from (0, 0)
+	}
+	
+	m_SelectionBox.check(m_MouseStatsPtr->position, m_MouseStatsPtr->leftState, panelBoundary);
 
 	if (m_SelectionBox.isSelected() && m_BoidSystemPtr)
 	{	

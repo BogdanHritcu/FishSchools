@@ -11,8 +11,8 @@
 #include "entities/boid.h"
 #include "interface/interface.h"
 
-int WIDTH = 1920;
-int HEIGHT = 1080;
+int WIDTH = 1080;
+int HEIGHT = 720;
 MouseStats mouseStats;
 
 float old_time;
