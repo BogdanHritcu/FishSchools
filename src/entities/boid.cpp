@@ -338,25 +338,6 @@ void BoidGroup::setBoidColor(const Vec4f& color)
 	m_Color = color;
 }
 
-BoidGroupStats BoidGroup::getStats() const
-{	
-	BoidGroupStats stats;
-
-	stats.boidSize = m_Size;
-	stats.cohesion = m_Cohesion;   //[0, 1]
-	stats.separation = m_Separation; //[0, 1]
-	stats.alignment = m_Alignment;  //[0, 1]
-	
-	stats.viewDistance = m_ViewDistance;
-	stats.minSeparationDistance = m_MinSeparationDistance;
-	stats.maxSpeed = m_MaxSpeed;
-
-	stats.color = m_Color;
-
-	stats.count = m_Boids.size();
-	return stats;
-}
-
 void BoidGroup::update(float dt, BoidSystem& boidSystem)
 {	
 	setCount(static_cast<size_t>(m_Countf), *boidSystem.getBoidBoundary());

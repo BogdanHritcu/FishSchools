@@ -69,8 +69,6 @@ public:
 
 	void setBoidColor(const Vec4f& color);
 
-	BoidGroupStats getStats() const;
-
 	void update(float dt, BoidSystem& boidSystem);
 
 	void draw() const;

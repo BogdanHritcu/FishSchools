@@ -19,14 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\callbacks\callbacks.cpp" />
     <ClCompile Include="src\entities\boid.cpp" />
     <ClCompile Include="src\interface\interface.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\callbacks\callbacks.h" />
     <ClInclude Include="src\entities\boid.h" />
     <ClInclude Include="src\interface\interface.h" />
     <ClInclude Include="src\utils\utils.h" />
